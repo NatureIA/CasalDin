@@ -39,50 +39,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function bindNavigation() {
   const buttons = document.querySelectorAll(".nav-item");
-
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
       buttons.forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
-
       const target = button.dataset.target;
-
       document.querySelectorAll(".page-section").forEach((section) => {
         section.classList.toggle("active-section", section.id === target);
       });
-
       const titleMap = {
         "visao-geral": "Visão geral",
         projecoes: "Projeções",
         inteligencia: "Inteligência financeira",
         historico: "Histórico",
       };
-
       document.querySelector(".topbar h1").textContent = titleMap[target] || "CasaDin";
     });
   });
 }
 
 function bindFilters() {
-  document
-    .getElementById("responsavelFilter")
-    .addEventListener("change", renderDashboard);
-
-  document
-    .getElementById("anoFilter")
-    .addEventListener("change", renderDashboard);
-
-  document
-    .getElementById("periodoFilter")
-    .addEventListener("change", renderDashboard);
-
-  document
-    .getElementById("refreshButton")
-    .addEventListener("click", loadData);
-
-  document
-    .getElementById("historySearch")
-    .addEventListener("input", renderHistory);
+  document.getElementById("responsavelFilter").addEventListener("change", renderDashboard);
+  document.getElementById("anoFilter").addEventListener("change", renderDashboard);
+  document.getElementById("periodoFilter").addEventListener("change", renderDashboard);
+  document.getElementById("refreshButton").addEventListener("click", loadData);
+  document.getElementById("historySearch").addEventListener("input", renderHistory);
 
   const monthFocus = document.getElementById("monthFocus");
   if (monthFocus) {
@@ -169,13 +150,10 @@ function parseCSV(text) {
       if (char === "\r" && nextChar === "\n") {
         index += 1;
       }
-
       row.push(field.trim());
-
       if (row.some((value) => value !== "")) {
         rows.push(row);
       }
-
       row = [];
       field = "";
       continue;
@@ -185,7 +163,6 @@ function parseCSV(text) {
   }
 
   row.push(field.trim());
-
   if (row.some((value) => value !== "")) {
     rows.push(row);
   }
@@ -269,13 +246,11 @@ function pick(object, keys) {
   for (const key of keys) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const value = object[key];
-
       if (String(value).trim() !== "") {
         return String(value).trim();
       }
     }
   }
-
   return "";
 }
 
@@ -297,10 +272,7 @@ function parseInteger(value) {
 }
 
 function parseDate(value) {
-  if (!value) {
-    return null;
-  }
-
+  if (!value) return null;
   const text = String(value).trim();
 
   const brDateTime = text.match(
@@ -317,7 +289,6 @@ function parseDate(value) {
       Number(minute),
       Number(second)
     );
-
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 
@@ -327,7 +298,6 @@ function parseDate(value) {
 
 function normalizeType(value) {
   const normalized = removeAccents(value).toLowerCase();
-
   if (normalized.includes("receita")) return "Receita";
   if (normalized.includes("econom")) return "Economia";
   return "Despesa";
@@ -335,7 +305,6 @@ function normalizeType(value) {
 
 function normalizePaymentModel(value) {
   const normalized = removeAccents(value).toLowerCase();
-
   if (normalized.includes("parcel")) return "Parcelado";
   if (normalized.includes("recorr")) return "Recorrente";
   return "À vista";
@@ -365,7 +334,6 @@ function populateYearFilter() {
   )].sort((a, b) => b - a);
 
   const currentYear = new Date().getFullYear();
-
   if (!years.includes(currentYear)) {
     years.unshift(currentYear);
   }
@@ -390,20 +358,15 @@ function getFilteredRecords() {
   return state.records.filter((record) => {
     const responsibleMatch =
       responsible === "Todos" || record.responsavel === responsible;
-
     const yearMatch =
       selectedYear === "Todos" ||
       (record.data && record.data.getFullYear() === Number(selectedYear));
-
     return responsibleMatch && yearMatch && dateMatchesPeriod(record.data, period);
   });
 }
 
 function dateMatchesPeriod(date, period) {
-  if (period === "todos" || !date) {
-    return true;
-  }
-
+  if (period === "todos" || !date) return true;
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -413,21 +376,17 @@ function dateMatchesPeriod(date, period) {
       date.getMonth() === now.getMonth()
     );
   }
-
   if (period === "anoAtual") {
     return date.getFullYear() === now.getFullYear();
   }
-
   const days = period === "30dias" ? 30 : 90;
   const start = new Date(startOfToday);
   start.setDate(start.getDate() - days);
-
   return date >= start && date <= now;
 }
 
 function renderDashboard() {
   const records = getFilteredRecords();
-
   renderKpis(records);
   renderFlowChart(records);
   renderCategoryChart(records);
@@ -450,21 +409,9 @@ function renderKpis(records) {
   setText("totalReceitas", formatCurrency(receitas));
   setText("totalDespesas", formatCurrency(despesas));
   setText("totalEconomias", formatCurrency(economias));
-
-  setText(
-    "receitasDescricao",
-    `${countByType(records, "Receita")} lançamento(s)`
-  );
-
-  setText(
-    "despesasDescricao",
-    `${countByType(records, "Despesa")} lançamento(s)`
-  );
-
-  setText(
-    "economiasDescricao",
-    `${countByType(records, "Economia")} lançamento(s)`
-  );
+  setText("receitasDescricao", `${countByType(records, "Receita")} lançamento(s)`);
+  setText("despesasDescricao", `${countByType(records, "Despesa")} lançamento(s)`);
+  setText("economiasDescricao", `${countByType(records, "Economia")} lançamento(s)`);
 }
 
 function sumByType(records, type) {
@@ -567,9 +514,7 @@ function renderCategoryChart(records) {
         maintainAspectRatio: false,
         cutout: "72%",
         plugins: {
-          legend: {
-            display: false,
-          },
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label(context) {
@@ -583,7 +528,6 @@ function renderCategoryChart(records) {
   );
 
   const legend = document.getElementById("categoriaLegend");
-
   legend.innerHTML = entries.length
     ? entries
         .map(
@@ -605,7 +549,6 @@ function renderCommitmentSummary(records) {
   const installments = records.filter(
     (record) => record.modeloPagamento === "Parcelado"
   );
-
   const recurring = records.filter(
     (record) => record.modeloPagamento === "Recorrente"
   );
@@ -615,17 +558,14 @@ function renderCommitmentSummary(records) {
       total + record.valor * Math.max(record.parcelasRestantes, 0),
     0
   );
-
   const remainingInstallments = installments.reduce(
     (total, record) => total + Math.max(record.parcelasRestantes, 0),
     0
   );
-
   const monthlyRecurring = recurring.reduce(
     (total, record) => total + monthlyEquivalent(record),
     0
   );
-
   const nextMonthProjection = calculateMonthProjection(
     records,
     addMonths(startOfMonth(new Date()), 1)
@@ -648,7 +588,6 @@ function renderPeopleComparison(records) {
   document.getElementById("victorBar").style.width = `${
     (Math.abs(victor) / maximum) * 100
   }%`;
-
   document.getElementById("laraBar").style.width = `${
     (Math.abs(lara) / maximum) * 100
   }%`;
@@ -658,7 +597,6 @@ function calculatePersonBalance(records, person) {
   const personRecords = records.filter(
     (record) => record.responsavel === person
   );
-
   return (
     sumByType(personRecords, "Receita") -
     sumByType(personRecords, "Despesa") -
@@ -721,11 +659,9 @@ function renderHistory() {
   const records = getFilteredRecords()
     .filter((record) => {
       if (!search) return true;
-
       const haystack = removeAccents(
         `${record.descricao} ${record.categoria} ${record.responsavel} ${record.tipo}`
       ).toLowerCase();
-
       return haystack.includes(search);
     })
     .sort((a, b) => {
@@ -831,10 +767,7 @@ function calculateMonthProjection(records, month) {
 
 function projectedInstallmentAmount(record, month) {
   const quantity = Math.max(record.parcelasRestantes, 0);
-
-  if (!quantity) {
-    return 0;
-  }
+  if (!quantity) return 0;
 
   const firstMonth = addMonths(startOfMonth(record.data || new Date()), 1);
   const monthDistance = differenceInMonths(firstMonth, startOfMonth(month));
@@ -855,26 +788,17 @@ function projectedRecurringAmount(record, month) {
 
   const frequency = removeAccents(record.frequencia).toLowerCase();
 
-  if (frequency.includes("seman")) {
-    return record.valor * 4.33;
-  }
-
-  if (frequency.includes("quinzen")) {
-    return record.valor * 2;
-  }
-
+  if (frequency.includes("seman")) return record.valor * 4.33;
+  if (frequency.includes("quinzen")) return record.valor * 2;
   if (frequency.includes("bimes")) {
     return differenceInMonths(start, month) % 2 === 0 ? record.valor : 0;
   }
-
   if (frequency.includes("trimes")) {
     return differenceInMonths(start, month) % 3 === 0 ? record.valor : 0;
   }
-
   if (frequency.includes("semes")) {
     return differenceInMonths(start, month) % 6 === 0 ? record.valor : 0;
   }
-
   if (frequency.includes("anual")) {
     return differenceInMonths(start, month) % 12 === 0 ? record.valor : 0;
   }
@@ -938,7 +862,6 @@ function sumMonthType(records, month, type) {
 
 function sameMonth(dateA, dateB) {
   if (!dateA || !dateB) return false;
-
   return (
     dateA.getFullYear() === dateB.getFullYear() &&
     dateA.getMonth() === dateB.getMonth()
@@ -964,22 +887,18 @@ function differenceInMonths(start, end) {
 function getRecentMonths(quantity) {
   const now = new Date();
   const months = [];
-
   for (let index = quantity - 1; index >= 0; index -= 1) {
     months.push(new Date(now.getFullYear(), now.getMonth() - index, 1));
   }
-
   return months;
 }
 
 function getFutureMonths(quantity) {
   const now = new Date();
   const months = [];
-
   for (let index = 1; index <= quantity; index += 1) {
     months.push(new Date(now.getFullYear(), now.getMonth() + index, 1));
   }
-
   return months;
 }
 
@@ -993,24 +912,18 @@ function chartOptions() {
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-        },
+        grid: { display: false },
         ticks: {
           color: "#8d98b3",
           autoSkip: true,
           maxTicksLimit: 18,
           maxRotation: 0,
-          font: {
-            size: 10,
-          },
+          font: { size: 10 },
         },
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: "rgba(255, 255, 255, 0.06)",
-        },
+        grid: { color: "rgba(255, 255, 255, 0.06)" },
         ticks: {
           color: "#8d98b3",
           callback(value) {
@@ -1050,11 +963,9 @@ function compactCurrency(value) {
   if (Math.abs(number) >= 1_000_000) {
     return `R$ ${(number / 1_000_000).toFixed(1)} mi`;
   }
-
   if (Math.abs(number) >= 1_000) {
     return `R$ ${(number / 1_000).toFixed(1)} mil`;
   }
-
   return `R$ ${number.toFixed(0)}`;
 }
 
@@ -1169,33 +1080,68 @@ function renderLongTermTimeline(records) {
     data: {
       labels,
       datasets: [
-        { label: "Compromissos", data: expenses, backgroundColor: "rgba(251,113,133,.68)", borderRadius: 7 },
-        { label: "Saldo", data: balances, backgroundColor: "rgba(52,211,153,.68)", borderRadius: 7 },
+        {
+          label: "Compromissos",
+          data: expenses,
+          backgroundColor: "rgba(251,113,133,.68)",
+          borderRadius: 7,
+        },
+        {
+          label: "Saldo",
+          data: balances,
+          backgroundColor: "rgba(52,211,153,.68)",
+          borderRadius: 7,
+        },
       ],
     },
     options: chartOptions(),
   });
 
   const mostExpensive = entries.reduce((best, current) =>
-    !best || current[1].expenses + current[1].savings > best[1].expenses + best[1].savings ? current : best, null);
+    !best ||
+    current[1].expenses + current[1].savings >
+      best[1].expenses + best[1].savings
+      ? current
+      : best,
+    null
+  );
   const lastInstallment = records
-    .filter((record) => record.modeloPagamento === "Parcelado" && record.parcelasRestantes > 0 && record.data)
-    .map((record) => ({ record, end: addMonths(startOfMonth(record.data), record.parcelasRestantes) }))
+    .filter(
+      (record) =>
+        record.modeloPagamento === "Parcelado" &&
+        record.parcelasRestantes > 0 &&
+        record.data
+    )
+    .map((record) => ({
+      record,
+      end: addMonths(startOfMonth(record.data), record.parcelasRestantes),
+    }))
     .sort((a, b) => b.end - a.end)[0];
 
   document.getElementById("timelineSummary").innerHTML = `
     <div><span>Horizonte analisado</span><strong>${horizon} meses</strong></div>
-    <div><span>Ano mais comprometido</span><strong>${mostExpensive ? mostExpensive[0] : "—"}</strong></div>
-    <div><span>Último parcelamento</span><strong>${lastInstallment ? monthYearLabel(lastInstallment.end) : "Nenhum"}</strong></div>
+    <div><span>Ano mais comprometido</span><strong>${
+      mostExpensive ? mostExpensive[0] : "—"
+    }</strong></div>
+    <div><span>Último parcelamento</span><strong>${
+      lastInstallment ? monthYearLabel(lastInstallment.end) : "Nenhum"
+    }</strong></div>
   `;
 
-  document.getElementById("timelineTableBody").innerHTML = entries.map(([year, values]) => `
+  document.getElementById("timelineTableBody").innerHTML = entries
+    .map(
+      ([year, values]) => `
     <tr>
-      <td>${year}</td><td class="value-cell">${formatCurrency(values.income)}</td>
+      <td>${year}</td>
+      <td class="value-cell">${formatCurrency(values.income)}</td>
       <td class="value-cell">${formatCurrency(values.expenses)}</td>
       <td class="value-cell">${formatCurrency(values.savings)}</td>
-      <td class="value-cell ${values.balance < 0 ? "negative-text" : "positive-text"}">${formatCurrency(values.balance)}</td>
-    </tr>`).join("");
+      <td class="value-cell ${
+        values.balance < 0 ? "negative-text" : "positive-text"
+      }">${formatCurrency(values.balance)}</td>
+    </tr>`
+    )
+    .join("");
 }
 
 function renderAnomalies(records) {
@@ -1203,43 +1149,113 @@ function renderAnomalies(records) {
   const actualExpenses = records.filter((r) => r.tipo === "Despesa" && r.data);
   const monthlyTotals = new Map();
   actualExpenses.forEach((r) => {
-    const key = `${r.data.getFullYear()}-${String(r.data.getMonth()+1).padStart(2,"0")}`;
+    const key = `${r.data.getFullYear()}-${String(r.data.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
     monthlyTotals.set(key, (monthlyTotals.get(key) || 0) + r.valor);
   });
   const totals = [...monthlyTotals.values()];
-  const average = totals.length ? totals.reduce((a,b)=>a+b,0)/totals.length : 0;
+  const average = totals.length
+    ? totals.reduce((a, b) => a + b, 0) / totals.length
+    : 0;
   const currentKey = toMonthInputValue(new Date());
   const currentTotal = monthlyTotals.get(currentKey) || 0;
   if (average > 0 && currentTotal > average * 1.25) {
-    anomalies.push({ level:"warning", title:"Despesas acima do padrão", text:`O mês atual está ${Math.round((currentTotal/average-1)*100)}% acima da média histórica mensal.` });
+    anomalies.push({
+      level: "warning",
+      title: "Despesas acima do padrão",
+      text: `O mês atual está ${Math.round(
+        (currentTotal / average - 1) * 100
+      )}% acima da média histórica mensal.`,
+    });
   }
 
   const duplicateGroups = new Map();
   records.forEach((r) => {
     if (!r.data) return;
-    const key = [r.responsavel, r.tipo, removeAccents(r.descricao).toLowerCase(), r.valor.toFixed(2), r.data.toDateString()].join("|");
-    duplicateGroups.set(key, [...(duplicateGroups.get(key)||[]), r]);
+    const key = [
+      r.responsavel,
+      r.tipo,
+      removeAccents(r.descricao).toLowerCase(),
+      r.valor.toFixed(2),
+      r.data.toDateString(),
+    ].join("|");
+    duplicateGroups.set(key, [...(duplicateGroups.get(key) || []), r]);
   });
-  const duplicate = [...duplicateGroups.values()].find((group)=>group.length>1);
-  if (duplicate) anomalies.push({ level:"danger", title:"Possível lançamento duplicado", text:`${duplicate.length} registros iguais de “${duplicate[0].descricao}” no mesmo dia.` });
-
-  const categories = {};
-  actualExpenses.forEach((r)=> categories[r.categoria]=(categories[r.categoria]||0)+r.valor);
-  const totalExpenses = Object.values(categories).reduce((a,b)=>a+b,0);
-  const dominant = Object.entries(categories).sort((a,b)=>b[1]-a[1])[0];
-  if (dominant && totalExpenses && dominant[1]/totalExpenses >= .45) {
-    anomalies.push({ level:"info", title:"Alta concentração de gastos", text:`${dominant[0]} representa ${Math.round(dominant[1]/totalExpenses*100)}% das despesas registradas.` });
+  const duplicate = [...duplicateGroups.values()].find((group) => group.length > 1);
+  if (duplicate) {
+    anomalies.push({
+      level: "danger",
+      title: "Possível lançamento duplicado",
+      text: `${duplicate.length} registros iguais de “${duplicate[0].descricao}” no mesmo dia.`,
+    });
   }
 
-  const nextMonths = getFutureMonths(12).map((month)=>({month, ...calculateMonthProjection(records, month)}));
-  const negative = nextMonths.find((item)=>item.balance<0);
-  if (negative) anomalies.push({ level:"danger", title:"Mês futuro com saldo negativo", text:`${monthYearLabel(negative.month)} apresenta déficit projetado de ${formatCurrency(Math.abs(negative.balance))}.` });
-  const peak = nextMonths.reduce((best,item)=>!best || item.expenses+item.savings>best.expenses+best.savings?item:best,null);
-  if (peak) anomalies.push({ level:"info", title:"Pico de compromissos", text:`${monthYearLabel(peak.month)} é o mês mais comprometido dos próximos 12 meses, com ${formatCurrency(peak.expenses+peak.savings)}.` });
+  const categories = {};
+  actualExpenses.forEach((r) => (categories[r.categoria] = (categories[r.categoria] || 0) + r.valor));
+  const totalExpenses = Object.values(categories).reduce((a, b) => a + b, 0);
+  const dominant = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
+  if (dominant && totalExpenses && dominant[1] / totalExpenses >= 0.45) {
+    anomalies.push({
+      level: "info",
+      title: "Alta concentração de gastos",
+      text: `${dominant[0]} representa ${Math.round(
+        (dominant[1] / totalExpenses) * 100
+      )}% das despesas registradas.`,
+    });
+  }
 
-  if (!anomalies.length) anomalies.push({ level:"success", title:"Nenhuma anomalia relevante", text:"Os lançamentos atuais não apresentam desvios significativos pelos critérios analisados." });
-  document.getElementById("anomalyList").innerHTML = anomalies.map((a)=>`
-    <div class="anomaly-card ${a.level}"><span class="anomaly-dot"></span><div><strong>${escapeHTML(a.title)}</strong><p>${escapeHTML(a.text)}</p></div></div>`).join("");
+  const nextMonths = getFutureMonths(12).map((month) => ({
+    month,
+    ...calculateMonthProjection(records, month),
+  }));
+  const negative = nextMonths.find((item) => item.balance < 0);
+  if (negative) {
+    anomalies.push({
+      level: "danger",
+      title: "Mês futuro com saldo negativo",
+      text: `${monthYearLabel(negative.month)} apresenta déficit projetado de ${formatCurrency(
+        Math.abs(negative.balance)
+      )}.`,
+    });
+  }
+  const peak = nextMonths.reduce((best, item) =>
+    !best ||
+    item.expenses + item.savings > best.expenses + best.savings
+      ? item
+      : best,
+    null
+  );
+  if (peak) {
+    anomalies.push({
+      level: "info",
+      title: "Pico de compromissos",
+      text: `${monthYearLabel(peak.month)} é o mês mais comprometido dos próximos 12 meses, com ${formatCurrency(
+        peak.expenses + peak.savings
+      )}.`,
+    });
+  }
+
+  if (!anomalies.length) {
+    anomalies.push({
+      level: "success",
+      title: "Nenhuma anomalia relevante",
+      text: "Os lançamentos atuais não apresentam desvios significativos pelos critérios analisados.",
+    });
+  }
+  document.getElementById("anomalyList").innerHTML = anomalies
+    .map(
+      (a) => `
+    <div class="anomaly-card ${a.level}">
+      <span class="anomaly-dot"></span>
+      <div>
+        <strong>${escapeHTML(a.title)}</strong>
+        <p>${escapeHTML(a.text)}</p>
+      </div>
+    </div>`
+    )
+    .join("");
 }
 
 function renderMonthlyIntelligence(records) {
@@ -1247,7 +1263,13 @@ function renderMonthlyIntelligence(records) {
   if (!input) return;
   const month = parseMonthInput(input.value) || startOfMonth(new Date());
   const items = getProjectedItemsForMonth(records, month);
-  const totals = items.reduce((acc,item)=>{ acc[item.type] += item.value; return acc; }, {Receita:0,Despesa:0,Economia:0});
+  const totals = items.reduce(
+    (acc, item) => {
+      acc[item.type] += item.value;
+      return acc;
+    },
+    { Receita: 0, Despesa: 0, Economia: 0 }
+  );
   const balance = totals.Receita - totals.Despesa - totals.Economia;
 
   setText("monthIncome", formatCurrency(totals.Receita));
@@ -1256,72 +1278,154 @@ function renderMonthlyIntelligence(records) {
   setText("monthBalance", formatCurrency(balance));
   document.getElementById("monthBalance").className = balance < 0 ? "negative-text" : "positive-text";
 
-  const groups = ["Receita","Despesa","Economia"].map((type)=>{
-    const groupItems=items.filter((item)=>item.type===type);
-    if (!groupItems.length) return "";
-    return `<section class="monthly-group"><h3>${type === "Receita" ? "Receitas previstas" : type === "Despesa" ? "Despesas previstas" : "Economias previstas"}</h3>${groupItems.map((item)=>`
-      <div class="monthly-item"><div><strong>${escapeHTML(item.description)}</strong><span>${escapeHTML(item.responsible)} · ${escapeHTML(item.source)}${item.remainingLabel ? ` · ${escapeHTML(item.remainingLabel)}` : ""}</span></div><b>${formatCurrency(item.value)}</b></div>`).join("")}</section>`;
-  }).join("");
-  document.getElementById("monthlyGroups").innerHTML = groups || '<div class="empty-state">Nenhum movimento previsto para este mês.</div>';
+  const groups = ["Receita", "Despesa", "Economia"]
+    .map((type) => {
+      const groupItems = items.filter((item) => item.type === type);
+      if (!groupItems.length) return "";
+      return `<section class="monthly-group"><h3>${
+        type === "Receita"
+          ? "Receitas previstas"
+          : type === "Despesa"
+          ? "Despesas previstas"
+          : "Economias previstas"
+      }</h3>${groupItems
+        .map(
+          (item) => `
+      <div class="monthly-item">
+        <div>
+          <strong>${escapeHTML(item.description)}</strong>
+          <span>${escapeHTML(item.responsible)} · ${escapeHTML(item.source)}${
+            item.remainingLabel ? ` · ${escapeHTML(item.remainingLabel)}` : ""
+          }</span>
+        </div>
+        <b>${formatCurrency(item.value)}</b>
+      </div>`
+        )
+        .join("")}</section>`;
+    })
+    .join("");
+  document.getElementById("monthlyGroups").innerHTML =
+    groups || '<div class="empty-state">Nenhum movimento previsto para este mês.</div>';
   renderMonthlyClosing(records, month, items, totals, balance);
 }
 
 function getProjectedItemsForMonth(records, month) {
-  const items=[];
-  records.forEach((record)=>{
-    let value=0, source="Lançamento", remainingLabel="";
+  const items = [];
+  records.forEach((record) => {
+    let value = 0,
+      source = "Lançamento",
+      remainingLabel = "";
     if (record.modeloPagamento === "Parcelado") {
-      value=projectedInstallmentAmount(record, month); source="Parcelado";
-      if (value>0 && record.data) {
-        const elapsed=differenceInMonths(addMonths(startOfMonth(record.data),1), month);
-        remainingLabel=`${Math.max(record.parcelasRestantes-elapsed,0)} restante(s)`;
+      value = projectedInstallmentAmount(record, month);
+      source = "Parcelado";
+      if (value > 0 && record.data) {
+        const elapsed = differenceInMonths(
+          addMonths(startOfMonth(record.data), 1),
+          month
+        );
+        remainingLabel = `${Math.max(
+          record.parcelasRestantes - elapsed,
+          0
+        )} restante(s)`;
       }
     } else if (record.modeloPagamento === "Recorrente") {
-      value=projectedRecurringAmount(record, month); source=record.frequencia || "Recorrente";
-    } else if (sameMonth(record.data, month)) value=record.valor;
-    if (value>0) items.push({ type:record.tipo, value, description:record.descricao, responsible:record.responsavel, source, remainingLabel });
+      value = projectedRecurringAmount(record, month);
+      source = record.frequencia || "Recorrente";
+    } else if (sameMonth(record.data, month)) {
+      value = record.valor;
+    }
+    if (value > 0) {
+      items.push({
+        type: record.tipo,
+        value,
+        description: record.descricao,
+        responsible: record.responsavel,
+        source,
+        remainingLabel,
+      });
+    }
   });
-  return items.sort((a,b)=>b.value-a.value);
+  return items.sort((a, b) => b.value - a.value);
 }
 
 function renderMonthlyClosing(records, month, items, totals, balance) {
-  const previous=addMonths(month,-1);
-  const previousItems=getProjectedItemsForMonth(records, previous);
-  const previousTotals=previousItems.reduce((acc,item)=>{acc[item.type]+=item.value;return acc;},{Receita:0,Despesa:0,Economia:0});
-  const previousBalance=previousTotals.Receita-previousTotals.Despesa-previousTotals.Economia;
-  const variation=previousBalance===0 ? null : (balance-previousBalance)/Math.abs(previousBalance)*100;
-  const expenseItems=items.filter((item)=>item.type==="Despesa");
-  const largest=expenseItems[0];
-  const byCategory={};
-  records.filter((r)=>r.tipo==="Despesa").forEach((r)=>{
-    const value = r.modeloPagamento==="Parcelado" ? projectedInstallmentAmount(r,month) : r.modeloPagamento==="Recorrente" ? projectedRecurringAmount(r,month) : sameMonth(r.data,month)?r.valor:0;
-    if(value>0) byCategory[r.categoria]=(byCategory[r.categoria]||0)+value;
-  });
-  const topCategory=Object.entries(byCategory).sort((a,b)=>b[1]-a[1])[0];
+  const previous = addMonths(month, -1);
+  const previousItems = getProjectedItemsForMonth(records, previous);
+  const previousTotals = previousItems.reduce(
+    (acc, item) => {
+      acc[item.type] += item.value;
+      return acc;
+    },
+    { Receita: 0, Despesa: 0, Economia: 0 }
+  );
+  const previousBalance =
+    previousTotals.Receita - previousTotals.Despesa - previousTotals.Economia;
+  const variation =
+    previousBalance === 0
+      ? null
+      : (balance - previousBalance) / Math.abs(previousBalance) * 100;
+  const expenseItems = items.filter((item) => item.type === "Despesa");
+  const largest = expenseItems[0];
+  const byCategory = {};
+  records
+    .filter((r) => r.tipo === "Despesa")
+    .forEach((r) => {
+      const value =
+        r.modeloPagamento === "Parcelado"
+          ? projectedInstallmentAmount(r, month)
+          : r.modeloPagamento === "Recorrente"
+          ? projectedRecurringAmount(r, month)
+          : sameMonth(r.data, month)
+          ? r.valor
+          : 0;
+      if (value > 0) byCategory[r.categoria] = (byCategory[r.categoria] || 0) + value;
+    });
+  const topCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0];
 
   setText("closingPeriodLabel", `Fechamento projetado de ${monthYearLabel(month)}.`);
   document.getElementById("closingScorecards").innerHTML = `
     <div><span>Receitas</span><strong>${formatCurrency(totals.Receita)}</strong></div>
     <div><span>Despesas</span><strong>${formatCurrency(totals.Despesa)}</strong></div>
     <div><span>Economias</span><strong>${formatCurrency(totals.Economia)}</strong></div>
-    <div><span>Resultado líquido</span><strong class="${balance<0?'negative-text':'positive-text'}">${formatCurrency(balance)}</strong></div>`;
-  const comparison = variation === null ? "Sem base suficiente para comparação com o mês anterior." : `O resultado está ${Math.abs(variation).toFixed(1)}% ${variation>=0?'melhor':'pior'} que no mês anterior.`;
+    <div><span>Resultado líquido</span><strong class="${
+      balance < 0 ? "negative-text" : "positive-text"
+    }">${formatCurrency(balance)}</strong></div>`;
+  const comparison =
+    variation === null
+      ? "Sem base suficiente para comparação com o mês anterior."
+      : `O resultado está ${Math.abs(variation).toFixed(
+          1
+        )}% ${variation >= 0 ? "melhor" : "pior"} que no mês anterior.`;
   document.getElementById("closingInsights").innerHTML = `
     <div><span>Comparação mensal</span><strong>${escapeHTML(comparison)}</strong></div>
-    <div><span>Maior despesa</span><strong>${largest ? `${escapeHTML(largest.description)} — ${formatCurrency(largest.value)}` : "Nenhuma"}</strong></div>
-    <div><span>Categoria dominante</span><strong>${topCategory ? `${escapeHTML(topCategory[0])} — ${formatCurrency(topCategory[1])}` : "Nenhuma"}</strong></div>
-    <div><span>Diagnóstico</span><strong>${balance < 0 ? "Mês projetado em déficit. Reveja compromissos ou amplie receitas." : "Mês projetado com saldo positivo."}</strong></div>`;
+    <div><span>Maior despesa</span><strong>${
+      largest
+        ? `${escapeHTML(largest.description)} — ${formatCurrency(largest.value)}`
+        : "Nenhuma"
+    }</strong></div>
+    <div><span>Categoria dominante</span><strong>${
+      topCategory
+        ? `${escapeHTML(topCategory[0])} — ${formatCurrency(topCategory[1])}`
+        : "Nenhuma"
+    }</strong></div>
+    <div><span>Diagnóstico</span><strong>${
+      balance < 0
+        ? "Mês projetado em déficit. Reveja compromissos ou amplie receitas."
+        : "Mês projetado com saldo positivo."
+    }</strong></div>`;
 }
 
 function toMonthInputValue(date) {
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 function parseMonthInput(value) {
-  const match=String(value).match(/^(\d{4})-(\d{2})$/);
-  return match ? new Date(Number(match[1]), Number(match[2])-1, 1) : null;
+  const match = String(value).match(/^(\d{4})-(\d{2})$/);
+  return match ? new Date(Number(match[1]), Number(match[2]) - 1, 1) : null;
 }
 function monthYearLabel(date) {
-  return new Intl.DateTimeFormat("pt-BR", {month:"long",year:"numeric"}).format(date).replace(/^./,c=>c.toUpperCase());
+  return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" })
+    .format(date)
+    .replace(/^./, (c) => c.toUpperCase());
 }
 
 /* =========================================================
@@ -1335,8 +1439,15 @@ function bindNoteInclusion() {
   const processButton = document.getElementById("processNoteButton");
   const submitButton = document.getElementById("submitNoteButton");
 
-  if (!modal || !openButton || !closeButton || !imageInput || !processButton || !submitButton) {
-    console.warn("Elementos do modal de nota não encontrados. Verifique se o HTML contém os IDs corretos.");
+  if (
+    !modal ||
+    !openButton ||
+    !closeButton ||
+    !imageInput ||
+    !processButton ||
+    !submitButton
+  ) {
+    console.warn("Elementos do modal de nota não encontrados.");
     return;
   }
 
@@ -1369,7 +1480,8 @@ function bindNoteInclusion() {
   submitButton.addEventListener("click", submitNoteToForms);
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !modal.classList.contains("hidden")) closeNoteModal();
+    if (event.key === "Escape" && !modal.classList.contains("hidden"))
+      closeNoteModal();
   });
 }
 
@@ -1411,7 +1523,10 @@ async function processNoteImage() {
   const responsible = document.getElementById("noteResponsavel").value;
   const category = document.getElementById("noteCategoria").value;
   if (!responsible || !category) {
-    return showNoteStatus("Selecione o responsável e a categoria antes de ler a nota.", "error");
+    return showNoteStatus(
+      "Selecione o responsável e a categoria antes de ler a nota.",
+      "error"
+    );
   }
 
   const button = document.getElementById("processNoteButton");
@@ -1434,7 +1549,8 @@ async function processNoteImage() {
 
     bar.style.width = "48%";
     const response = await fetch(OCR_URL, { method: "POST", body: formData });
-    if (!response.ok) throw new Error(`Falha na leitura da nota (HTTP ${response.status}).`);
+    if (!response.ok)
+      throw new Error(`Falha na leitura da nota (HTTP ${response.status}).`);
 
     const result = await response.json();
     bar.style.width = "82%";
@@ -1442,9 +1558,11 @@ async function processNoteImage() {
     if (!parsedText.trim()) throw new Error("Nenhum texto foi reconhecido na imagem.");
 
     const extracted = extractNoteFields(parsedText);
-    document.getElementById("noteDescricao").value = extracted.establishment || "Estabelecimento não identificado";
+    document.getElementById("noteDescricao").value =
+      extracted.establishment || "Estabelecimento não identificado";
     document.getElementById("noteValor").value = extracted.value || "";
-    document.getElementById("noteFormaPagamento").value = extracted.paymentMethod || "Não identificado";
+    document.getElementById("noteFormaPagamento").value =
+      extracted.paymentMethod || "Não identificado";
     document.getElementById("noteExtracted").classList.remove("hidden");
     bar.style.width = "100%";
     showNoteStatus("Leitura concluída. Confira os dados antes de confirmar.", "success");
@@ -1457,7 +1575,10 @@ async function processNoteImage() {
 }
 
 function extractNoteFields(text) {
-  const lines = String(text).split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = String(text)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
   return {
     establishment: extractNoteEstablishment(lines),
     value: extractNoteTotal(text, lines),
@@ -1469,7 +1590,12 @@ function extractNoteEstablishment(lines) {
   const ignored = /^(CNPJ|CPF|IE|IM|ENDERE|RUA|AV\.?|DOCUMENTO|EXTRATO|CUPOM|NOTA|SAT|NFC|DANFE|DATA|HORA|TEL|WWW)/i;
   for (const line of lines.slice(0, 10)) {
     const cleaned = line.replace(/\s{2,}/g, " ").trim();
-    if (cleaned.length >= 4 && /[A-Za-zÀ-ÿ]/.test(cleaned) && !ignored.test(cleaned) && !/^\d+[\d .\/-]*$/.test(cleaned)) {
+    if (
+      cleaned.length >= 4 &&
+      /[A-Za-zÀ-ÿ]/.test(cleaned) &&
+      !ignored.test(cleaned) &&
+      !/^\d+[\d .\/-]*$/.test(cleaned)
+    ) {
       return titleCase(cleaned.substring(0, 90));
     }
   }
@@ -1479,7 +1605,10 @@ function extractNoteEstablishment(lines) {
 function extractNotePaymentMethod(text, lines) {
   for (let index = 0; index < lines.length; index += 1) {
     const normalized = removeAccents(lines[index]).toUpperCase();
-    if (normalized.includes("FORMA DE PAGAMENTO") || normalized.includes("FORMA PAGTO")) {
+    if (
+      normalized.includes("FORMA DE PAGAMENTO") ||
+      normalized.includes("FORMA PAGTO")
+    ) {
       const next = lines[index + 1] || "";
       if (next.length >= 3) return normalizeNotePaymentMethod(next);
     }
@@ -1503,7 +1632,12 @@ function extractNoteTotal(text, lines) {
   for (const term of priority) {
     for (let index = 0; index < lines.length; index += 1) {
       const normalized = removeAccents(lines[index]).toUpperCase();
-      if (!normalized.includes(term) || normalized.includes("QUANTIDADE") || normalized.includes("DESCONTO")) continue;
+      if (
+        !normalized.includes(term) ||
+        normalized.includes("QUANTIDADE") ||
+        normalized.includes("DESCONTO")
+      )
+        continue;
       for (const source of [lines[index], lines[index + 1] || "", lines[index + 2] || ""]) {
         const values = findNoteCurrencyValues(source);
         if (values.length) return currencyFormatter.format(values[values.length - 1]);
@@ -1511,12 +1645,19 @@ function extractNoteTotal(text, lines) {
     }
   }
   const allValues = findNoteCurrencyValues(text).filter((value) => value > 0);
-  return allValues.length ? currencyFormatter.format(allValues[allValues.length - 1]) : "";
+  return allValues.length
+    ? currencyFormatter.format(allValues[allValues.length - 1])
+    : "";
 }
 
 function findNoteCurrencyValues(source) {
-  const matches = String(source).match(/(?:R\$\s*)?\d{1,3}(?:\.\d{3})*,\d{2}|(?:R\$\s*)?\d+(?:[.,]\d{2})/g) || [];
-  return matches.map((value) => parseMoney(value)).filter((value) => Number.isFinite(value) && value >= 0);
+  const matches =
+    String(source).match(
+      /(?:R\$\s*)?\d{1,3}(?:\.\d{3})*,\d{2}|(?:R\$\s*)?\d+(?:[.,]\d{2})/g
+    ) || [];
+  return matches
+    .map((value) => parseMoney(value))
+    .filter((value) => Number.isFinite(value) && value >= 0);
 }
 
 async function submitNoteToForms() {
@@ -1527,12 +1668,18 @@ async function submitNoteToForms() {
   const paymentMethod = document.getElementById("noteFormaPagamento").value.trim();
 
   if (!responsible || !category || !description || !amountRaw) {
-    return showNoteStatus("Preencha responsável, categoria, descrição e valor antes de enviar.", "error");
+    return showNoteStatus(
+      "Preencha responsável, categoria, descrição e valor antes de enviar.",
+      "error"
+    );
   }
 
   const amount = parseMoney(amountRaw);
   if (!amount || amount <= 0) {
-    return showNoteStatus("Valor inválido. Use formato como 185,90 ou 185.90.", "error");
+    return showNoteStatus(
+      "Valor inválido. Use formato como 185,90 ou 185.90.",
+      "error"
+    );
   }
 
   const formData = new FormData();
@@ -1573,7 +1720,8 @@ function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Não foi possível abrir a imagem selecionada."));
+    reader.onerror = () =>
+      reject(new Error("Não foi possível abrir a imagem selecionada."));
     reader.readAsDataURL(file);
   });
 }
