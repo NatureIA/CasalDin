@@ -1724,36 +1724,58 @@ async function submitNoteToForms() {
 
   showNoteStatus("Enviando dados para o Google Forms...");
 
-  try {
-    await fetch(FORMS_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-      },
-      body: params.toString(),
-    });
+try {
+  let iframe = document.getElementById("googleFormsTarget");
 
-    showNoteStatus(
-      "Dados enviados com sucesso! Atualizando o painel...",
-      "success"
-    );
-
-    setTimeout(() => {
-      closeNoteModal();
-      loadData();
-    }, 2000);
-  } catch (error) {
-    console.error("Erro ao enviar para o Google Forms:", error);
-
-    showNoteStatus(
-      "Erro ao enviar. Verifique sua conexão e tente novamente.",
-      "error"
-    );
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Confirmar inclusão";
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "googleFormsTarget";
+    iframe.name = "googleFormsTarget";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
   }
+
+  const form = document.createElement("form");
+
+  form.method = "POST";
+  form.action = FORMS_URL;
+  form.target = "googleFormsTarget";
+  form.style.display = "none";
+
+  params.forEach((value, key) => {
+    const input = document.createElement("input");
+
+    input.type = "hidden";
+    input.name = key;
+    input.value = value;
+
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
+
+  showNoteStatus(
+    "Dados enviados ao Google Forms. Atualizando o painel...",
+    "success"
+  );
+
+  setTimeout(() => {
+    closeNoteModal();
+    loadData();
+  }, 4000);
+} catch (error) {
+  console.error("Erro ao enviar para o Google Forms:", error);
+
+  showNoteStatus(
+    "Erro ao enviar. Verifique sua conexão e tente novamente.",
+    "error"
+  );
+} finally {
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Confirmar inclusão";
+}
 }
 
 function fileToDataUrl(file) {
