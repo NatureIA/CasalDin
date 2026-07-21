@@ -55,16 +55,12 @@ button { cursor: pointer; }
   gap: 13px;
   padding: 0 8px 30px;
 }
-.brand-mark {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
   border-radius: 14px;
-  font-size: 20px;
-  font-weight: 800;
-  background: linear-gradient(145deg, var(--primary), var(--primary-2));
-  box-shadow: 0 12px 30px rgba(124, 92, 255, 0.35);
+  flex-shrink: 0;
 }
 .brand strong, .brand span { display: block; }
 .brand strong { font-size: 18px; }
