@@ -1,8 +1,6 @@
 const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQc3dcLg-Fi78H6M00At-eTfmeeQMghVK-Oy3w5XSX7QBXPNTLNZiGmlzt2Va5SqRgYhR5GqBo13fGE/pub?gid=2088244644&single=true&output=csv";
 
-// Removido LOCAL_NOTES_KEY
-
 const OCR_API_KEY = "helloworld";
 const OCR_URL = "https://api.ocr.space/parse/image";
 
@@ -86,16 +84,22 @@ function bindFilters() {
     .getElementById("historySearch")
     .addEventListener("input", renderHistory);
 
-  document.getElementById("monthFocus").value = toMonthInputValue(new Date());
-  document.getElementById("monthFocus").addEventListener("change", () => {
-    renderMonthlyIntelligence(getBaseResponsibleRecords());
-  });
+  const monthFocus = document.getElementById("monthFocus");
+  if (monthFocus) {
+    monthFocus.value = toMonthInputValue(new Date());
+    monthFocus.addEventListener("change", () => {
+      renderMonthlyIntelligence(getBaseResponsibleRecords());
+    });
+  }
 
-  document.getElementById("printReportButton").addEventListener("click", () => {
-    document.body.classList.add("printing-report");
-    window.print();
-    window.setTimeout(() => document.body.classList.remove("printing-report"), 400);
-  });
+  const printBtn = document.getElementById("printReportButton");
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      document.body.classList.add("printing-report");
+      window.print();
+      window.setTimeout(() => document.body.classList.remove("printing-report"), 400);
+    });
+  }
 }
 
 async function loadData() {
@@ -118,7 +122,6 @@ async function loadData() {
       throw new Error("A planilha não possui linhas de dados.");
     }
 
-    // Remove a concatenação com notas locais
     state.records = normalizeRows(rows);
     populateYearFilter();
     renderDashboard();
@@ -840,11 +843,6 @@ function projectedInstallmentAmount(record, month) {
     return 0;
   }
 
-  /*
-   * O valor cadastrado representa o valor de cada parcela.
-   * Exemplo: R$ 850 com 390 parcelas restantes projeta
-   * R$ 850 por mês durante 390 meses.
-   */
   return record.valor;
 }
 
@@ -1078,9 +1076,10 @@ function setText(id, value) {
 }
 
 function setLoading(isLoading) {
-  document
-    .getElementById("loadingOverlay")
-    .classList.toggle("hidden", !isLoading);
+  const overlay = document.getElementById("loadingOverlay");
+  if (overlay) {
+    overlay.classList.toggle("hidden", !isLoading);
+  }
 }
 
 function setSyncState(status) {
@@ -1120,7 +1119,6 @@ function showError(message) {
 function hideError() {
   document.getElementById("errorBox").classList.add("hidden");
 }
-
 
 function getBaseResponsibleRecords() {
   const responsible = document.getElementById("responsavelFilter").value;
@@ -1246,6 +1244,7 @@ function renderAnomalies(records) {
 
 function renderMonthlyIntelligence(records) {
   const input = document.getElementById("monthFocus");
+  if (!input) return;
   const month = parseMonthInput(input.value) || startOfMonth(new Date());
   const items = getProjectedItemsForMonth(records, month);
   const totals = items.reduce((acc,item)=>{ acc[item.type] += item.value; return acc; }, {Receita:0,Despesa:0,Economia:0});
@@ -1325,10 +1324,8 @@ function monthYearLabel(date) {
   return new Intl.DateTimeFormat("pt-BR", {month:"long",year:"numeric"}).format(date).replace(/^./,c=>c.toUpperCase());
 }
 
-
 /* =========================================================
    Inclusão de nota por OCR — envio direto para Google Forms
-   (sem localStorage)
    ========================================================= */
 function bindNoteInclusion() {
   const modal = document.getElementById("noteModal");
@@ -1337,6 +1334,11 @@ function bindNoteInclusion() {
   const imageInput = document.getElementById("noteImageInput");
   const processButton = document.getElementById("processNoteButton");
   const submitButton = document.getElementById("submitNoteButton");
+
+  if (!modal || !openButton || !closeButton || !imageInput || !processButton || !submitButton) {
+    console.warn("Elementos do modal de nota não encontrados. Verifique se o HTML contém os IDs corretos.");
+    return;
+  }
 
   openButton.addEventListener("click", openNoteModal);
   closeButton.addEventListener("click", closeNoteModal);
@@ -1517,9 +1519,6 @@ function findNoteCurrencyValues(source) {
   return matches.map((value) => parseMoney(value)).filter((value) => Number.isFinite(value) && value >= 0);
 }
 
-// ============================================================
-// NOVA FUNÇÃO: envia os dados extraídos para o Google Forms
-// ============================================================
 async function submitNoteToForms() {
   const responsible = document.getElementById("noteResponsavel").value;
   const category = document.getElementById("noteCategoria").value;
@@ -1527,7 +1526,6 @@ async function submitNoteToForms() {
   const amountRaw = document.getElementById("noteValor").value;
   const paymentMethod = document.getElementById("noteFormaPagamento").value.trim();
 
-  // Validação
   if (!responsible || !category || !description || !amountRaw) {
     return showNoteStatus("Preencha responsável, categoria, descrição e valor antes de enviar.", "error");
   }
@@ -1537,40 +1535,31 @@ async function submitNoteToForms() {
     return showNoteStatus("Valor inválido. Use formato como 185,90 ou 185.90.", "error");
   }
 
-  // Monta o FormData com os campos mapeados para o Forms
   const formData = new FormData();
-  formData.append("entry.680682825", description);      // Nome (estabelecimento)
-  formData.append("entry.83532577", "Despesa");          // Tipo fixo
-  formData.append("entry.228518281", category);          // Categoria
-  formData.append("entry.1422234492", paymentMethod || "Não informado"); // Forma de pagamento
-  formData.append("entry.844975634", "Pago");            // Condição (à vista)
-  formData.append("entry.853825704", description);       // Descrição (mesmo campo)
-  formData.append("entry.2025566254", amount.toFixed(2).replace(".", ",")); // Valor com vírgula
+  formData.append("entry.680682825", description);
+  formData.append("entry.83532577", "Despesa");
+  formData.append("entry.228518281", category);
+  formData.append("entry.1422234492", paymentMethod || "Não informado");
+  formData.append("entry.844975634", "Pago");
+  formData.append("entry.853825704", description);
+  formData.append("entry.2025566254", amount.toFixed(2).replace(".", ","));
 
-  // Exibe status de envio
   const submitBtn = document.getElementById("submitNoteButton");
   submitBtn.disabled = true;
   submitBtn.textContent = "Enviando...";
   showNoteStatus("Enviando dados para o Google Forms...");
 
   try {
-    // Envia para o Forms (no-cors, não podemos ler a resposta)
-    const response = await fetch(FORMS_URL, {
+    await fetch(FORMS_URL, {
       method: "POST",
       mode: "no-cors",
       body: formData,
     });
-
-    // Como no-cors não retorna status ou corpo, consideramos sucesso se não houve erro de rede.
-    // O Forms pode demorar alguns segundos para atualizar o CSV.
     showNoteStatus("Dados enviados com sucesso! Atualizando o painel...", "success");
-
-    // Fecha o modal após breve delay e recarrega os dados
     setTimeout(() => {
       closeNoteModal();
-      loadData(); // recarrega o CSV publicado
+      loadData();
     }, 1500);
-
   } catch (error) {
     console.error("Erro ao enviar para o Forms:", error);
     showNoteStatus("Erro ao enviar. Verifique sua conexão e tente novamente.", "error");
