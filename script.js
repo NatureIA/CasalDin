@@ -1,12 +1,12 @@
 const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQc3dcLg-Fi78H6M00At-eTfmeeQMghVK-Oy3w5XSX7QBXPNTLNZiGmlzt2Va5SqRgYhR5GqBo13fGE/pub?gid=2088244644&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTIIOt672dsp1W0B-UNPxTkRR2C7OcPqFhDIJZX65Rz9lvlDXJsdqIobLuNiErG9Ck79sZGUCKyzHz4/pub?gid=1940834769&single=true&output=csv";
 
 const OCR_API_KEY = "helloworld";
 const OCR_URL = "https://api.ocr.space/parse/image";
 
 // Endpoint do Google Forms
 const FORMS_URL =
-"https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSezzTLg937IgjLCi2KJTxYeuf8baL8SAqqqPgejQANZGEE_GQ/formResponse";
 
 const state = {
   records: [],
@@ -1694,28 +1694,28 @@ async function submitNoteToForms() {
   const params = new URLSearchParams();
 
   // Nome / Responsável
-  params.append("entry.680682825", responsible);
+  params.append("entry.531790735", responsible);
 
   // Tipo
-  params.append("entry.83532577", "Despesa");
+  params.append("entry.365531162", "Despesa");
 
   // Categoria
-  params.append("entry.228518281", category);
+  params.append("entry.1598102746", category);
 
   // Descrição
-  params.append("entry.853825704", description);
+  params.append("entry.1472213390", description);
 
   // Valor
   params.append(
-    "entry.2025566254",
+    "entry.1390409746",
     amount.toFixed(2).replace(".", ",")
   );
 
   // Forma de pagamento: Pix, Crédito, Débito etc.
-  params.append("entry.1422234492", paymentMethod);
+  params.append("entry.1231333560", paymentMethod);
 
   // Como será pago?
-  params.append("entry.844975634", "À vista");
+  params.append("entry.312882359", "À vista");
 
   const submitBtn = document.getElementById("submitNoteButton");
 
@@ -1724,58 +1724,58 @@ async function submitNoteToForms() {
 
   showNoteStatus("Enviando dados para o Google Forms...");
 
-try {
-  let iframe = document.getElementById("googleFormsTarget");
+  try {
+    let iframe = document.getElementById("googleFormsTarget");
 
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.id = "googleFormsTarget";
-    iframe.name = "googleFormsTarget";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
+    if (!iframe) {
+      iframe = document.createElement("iframe");
+      iframe.id = "googleFormsTarget";
+      iframe.name = "googleFormsTarget";
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+    }
+
+    const form = document.createElement("form");
+
+    form.method = "POST";
+    form.action = FORMS_URL;
+    form.target = "googleFormsTarget";
+    form.style.display = "none";
+
+    params.forEach((value, key) => {
+      const input = document.createElement("input");
+
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+
+    showNoteStatus(
+      "Dados enviados ao Google Forms. Atualizando o painel...",
+      "success"
+    );
+
+    setTimeout(() => {
+      closeNoteModal();
+      loadData();
+    }, 4000);
+  } catch (error) {
+    console.error("Erro ao enviar para o Google Forms:", error);
+
+    showNoteStatus(
+      "Erro ao enviar. Verifique sua conexão e tente novamente.",
+      "error"
+    );
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Confirmar inclusão";
   }
-
-  const form = document.createElement("form");
-
-  form.method = "POST";
-  form.action = FORMS_URL;
-  form.target = "googleFormsTarget";
-  form.style.display = "none";
-
-  params.forEach((value, key) => {
-    const input = document.createElement("input");
-
-    input.type = "hidden";
-    input.name = key;
-    input.value = value;
-
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
-  form.remove();
-
-  showNoteStatus(
-    "Dados enviados ao Google Forms. Atualizando o painel...",
-    "success"
-  );
-
-  setTimeout(() => {
-    closeNoteModal();
-    loadData();
-  }, 4000);
-} catch (error) {
-  console.error("Erro ao enviar para o Google Forms:", error);
-
-  showNoteStatus(
-    "Erro ao enviar. Verifique sua conexão e tente novamente.",
-    "error"
-  );
-} finally {
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Confirmar inclusão";
-}
 }
 
 function fileToDataUrl(file) {
