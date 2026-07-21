@@ -1665,16 +1665,25 @@ async function submitNoteToForms() {
   const category = document.getElementById("noteCategoria").value;
   const description = document.getElementById("noteDescricao").value.trim();
   const amountRaw = document.getElementById("noteValor").value;
-  const paymentMethod = document.getElementById("noteFormaPagamento").value.trim();
+  const paymentMethod = document
+    .getElementById("noteFormaPagamento")
+    .value.trim();
 
-  if (!responsible || !category || !description || !amountRaw) {
+  if (
+    !responsible ||
+    !category ||
+    !description ||
+    !amountRaw ||
+    !paymentMethod
+  ) {
     return showNoteStatus(
-      "Preencha responsável, categoria, descrição e valor antes de enviar.",
+      "Preencha responsável, categoria, descrição, valor e forma de pagamento antes de enviar.",
       "error"
     );
   }
 
   const amount = parseMoney(amountRaw);
+
   if (!amount || amount <= 0) {
     return showNoteStatus(
       "Valor inválido. Use formato como 185,90 ou 185.90.",
@@ -1682,19 +1691,37 @@ async function submitNoteToForms() {
     );
   }
 
-  // 👇 CORREÇÃO: usar URLSearchParams (x-www-form-urlencoded)
   const params = new URLSearchParams();
-  params.append("entry.680682825", description);
+
+  // Nome / Responsável
+  params.append("entry.680682825", responsible);
+
+  // Tipo
   params.append("entry.83532577", "Despesa");
+
+  // Categoria
   params.append("entry.228518281", category);
-  params.append("entry.1422234492", paymentMethod || "Não informado");
-  params.append("entry.844975634", "Pago");
+
+  // Descrição
   params.append("entry.853825704", description);
-  params.append("entry.2025566254", amount.toFixed(2).replace(".", ","));
+
+  // Valor
+  params.append(
+    "entry.2025566254",
+    amount.toFixed(2).replace(".", ",")
+  );
+
+  // Forma de pagamento: Pix, Crédito, Débito etc.
+  params.append("entry.1422234492", paymentMethod);
+
+  // Como será pago?
+  params.append("entry.844975634", "À vista");
 
   const submitBtn = document.getElementById("submitNoteButton");
+
   submitBtn.disabled = true;
   submitBtn.textContent = "Enviando...";
+
   showNoteStatus("Enviando dados para o Google Forms...");
 
   try {
@@ -1702,18 +1729,27 @@ async function submitNoteToForms() {
       method: "POST",
       mode: "no-cors",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
       },
       body: params.toString(),
     });
-    showNoteStatus("Dados enviados com sucesso! Atualizando o painel...", "success");
+
+    showNoteStatus(
+      "Dados enviados com sucesso! Atualizando o painel...",
+      "success"
+    );
+
     setTimeout(() => {
       closeNoteModal();
       loadData();
     }, 2000);
   } catch (error) {
-    console.error("Erro ao enviar para o Forms:", error);
-    showNoteStatus("Erro ao enviar. Verifique sua conexão e tente novamente.", "error");
+    console.error("Erro ao enviar para o Google Forms:", error);
+
+    showNoteStatus(
+      "Erro ao enviar. Verifique sua conexão e tente novamente.",
+      "error"
+    );
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Confirmar inclusão";
