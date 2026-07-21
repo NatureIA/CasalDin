@@ -1765,7 +1765,7 @@ async function submitNoteToForms() {
     form.remove();
 
     showNoteStatus(
-      "Dados enviados ao Google Forms. Atualizando o painel...",
+      "Dados enviados. Atualizando o painel...",
       "success"
     );
 
