@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>CasaDin — Gestão Financeira Familiar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <div>
+          <strong>CasaDin</strong>
+          <span>Finanças da família</span>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Navegação principal">
+        <button class="nav-item active" data-target="visao-geral">
+          <span>▦</span>
+          Visão geral
+        </button>
+        <button class="nav-item" data-target="projecoes">
+          <span>⌁</span>
+          Projeções
+        </button>
+        <button class="nav-item" data-target="inteligencia">
+          <span>◇</span>
+          Inteligência
+        </button>
+        <button class="nav-item" data-target="historico">
+          <span>☷</span>
+          Histórico
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sync-status">
+          <span class="status-dot" id="statusDot"></span>
+          <div>
+            <strong id="syncLabel">Conectando</strong>
+            <small id="lastSync">Aguardando dados</small>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">PAINEL FINANCEIRO</p>
+          <h1>Visão geral</h1>
+          <p class="subtitle">Acompanhe receitas, despesas, economias e compromissos futuros.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <label class="filter-field">
+            <span>Responsável</span>
+            <select id="responsavelFilter">
+              <option value="Todos">Todos</option>
+              <option value="Victor">Victor</option>
+              <option value="Lara">Lara</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Ano</span>
+            <select id="anoFilter">
+              <option value="Todos">Todos</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Período</span>
+            <select id="periodoFilter">
+              <option value="mesAtual">Mês atual</option>
+              <option value="30dias">Últimos 30 dias</option>
+              <option value="90dias">Últimos 90 dias</option>
+              <option value="anoAtual">Ano atual</option>
+              <option value="todos">Todo o histórico</option>
+            </select>
+          </label>
+
+          <button class="manual-button" id="openManualButton" type="button">Novo lançamento</button>
+          <button class="note-button" id="openNoteButton" type="button">Incluir nota</button>
+          <button class="refresh-button" id="refreshButton" type="button">Atualizar</button>
+        </div>
+      </header>
+
+      <section id="visao-geral" class="page-section active-section">
+        <div class="alert-box hidden" id="errorBox"></div>
+
+        <section class="kpi-grid" aria-label="Indicadores financeiros">
+          <article class="kpi-card featured">
+            <div class="kpi-card-header">
+              <span>Saldo projetado</span>
+              <span class="kpi-icon">◉</span>
+            </div>
+            <strong id="saldoAtual">R$ 0,00</strong>
+            <small id="saldoDescricao">Receitas menos despesas e economias</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Receitas</span>
+              <span class="trend positive">↑</span>
+            </div>
+            <strong id="totalReceitas">R$ 0,00</strong>
+            <small id="receitasDescricao">0 lançamento(s)</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Despesas</span>
+              <span class="trend negative">↓</span>
+            </div>
+            <strong id="totalDespesas">R$ 0,00</strong>
+            <small id="despesasDescricao">0 lançamento(s)</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Economias</span>
+              <span class="trend neutral">◆</span>
+            </div>
+            <strong id="totalEconomias">R$ 0,00</strong>
+            <small id="economiasDescricao">0 lançamento(s)</small>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel chart-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">MOVIMENTAÇÃO</p>
+                <h2>Receitas x despesas</h2>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="fluxoChart"></canvas>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">CATEGORIAS</p>
+                <h2>Distribuição das despesas</h2>
+              </div>
+            </div>
+            <div class="chart-wrap donut-wrap">
+              <canvas id="categoriasChart"></canvas>
+            </div>
+            <div id="categoriaLegend" class="custom-legend"></div>
+          </article>
+        </section>
+
+        <section class="content-grid lower-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">COMPROMISSOS</p>
+                <h2>Resumo futuro</h2>
+              </div>
+            </div>
+            <div class="commitment-list">
+              <div class="commitment-item">
+                <span>Valor parcelado futuro</span>
+                <strong id="parceladoFuturo">R$ 0,00</strong>
+              </div>
+              <div class="commitment-item">
+                <span>Parcelas restantes</span>
+                <strong id="parcelasRestantes">0</strong>
+              </div>
+              <div class="commitment-item">
+                <span>Recorrências mensais</span>
+                <strong id="recorrenciasMensais">R$ 0,00</strong>
+              </div>
+              <div class="commitment-item">
+                <span>Próximo mês projetado</span>
+                <strong id="proximoMesProjetado">R$ 0,00</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">RESPONSÁVEIS</p>
+                <h2>Victor x Lara</h2>
+              </div>
+            </div>
+            <div class="person-comparison">
+              <div class="person-row">
+                <div class="person-meta">
+                  <strong>Victor</strong>
+                  <span id="victorResumo">R$ 0,00</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-bar" id="victorBar"></div>
+                </div>
+              </div>
+              <div class="person-row">
+                <div class="person-meta">
+                  <strong>Lara</strong>
+                  <span id="laraResumo">R$ 0,00</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-bar" id="laraBar"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel recent-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">MOVIMENTAÇÕES</p>
+              <h2>Últimos lançamentos</h2>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Responsável</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Descrição</th>
+                  <th>Pagamento</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody id="recentTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state hidden" id="recentEmpty">
+            Nenhum lançamento encontrado para os filtros selecionados.
+          </div>
+        </section>
+      </section>
+
+      <section id="projecoes" class="page-section">
+        <section class="projection-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">PRÓXIMOS 12 MESES</p>
+                <h2>Fluxo de caixa projetado</h2>
+              </div>
+            </div>
+            <div class="chart-wrap large-chart">
+              <canvas id="projecaoChart"></canvas>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">DETALHAMENTO</p>
+                <h2>Compromissos cadastrados</h2>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Responsável</th>
+                    <th>Descrição</th>
+                    <th>Modelo</th>
+                    <th>Valor mensal</th>
+                    <th>Duração</th>
+                  </tr>
+                </thead>
+                <tbody id="commitmentsTableBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state hidden" id="commitmentsEmpty">
+              Nenhum parcelamento ou recorrência cadastrado.
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section id="inteligencia" class="page-section">
+        <section class="intelligence-grid">
+          <article class="panel timeline-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">LONGO PRAZO</p>
+                <h2>Linha do tempo financeira</h2>
+                <p class="panel-description">Compromissos projetados por ano até o término do parcelamento mais longo.</p>
+              </div>
+            </div>
+            <div class="timeline-summary" id="timelineSummary"></div>
+            <div class="chart-wrap large-chart">
+              <canvas id="timelineChart"></canvas>
+            </div>
+            <div class="table-wrapper timeline-table-wrapper">
+              <table>
+                <thead><tr><th>Ano</th><th>Receitas previstas</th><th>Despesas previstas</th><th>Economias previstas</th><th>Saldo previsto</th></tr></thead>
+                <tbody id="timelineTableBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">RADAR</p>
+                <h2>Anomalias e oportunidades</h2>
+                <p class="panel-description">Leitura automática do histórico e dos compromissos projetados.</p>
+              </div>
+            </div>
+            <div class="anomaly-list" id="anomalyList"></div>
+          </article>
+
+          <article class="panel monthly-panel">
+            <div class="panel-header monthly-header">
+              <div>
+                <p class="panel-kicker">AGENDA MENSAL</p>
+                <h2>Painel financeiro do mês</h2>
+                <p class="panel-description">Parcelas e recorrências entram a partir do mês seguinte ao cadastro.</p>
+              </div>
+              <label class="filter-field compact-filter">
+                <span>Mês analisado</span>
+                <input type="month" id="monthFocus" />
+              </label>
+            </div>
+            <div class="monthly-kpis">
+              <div><span>Receitas</span><strong id="monthIncome">R$ 0,00</strong></div>
+              <div><span>Despesas</span><strong id="monthExpenses">R$ 0,00</strong></div>
+              <div><span>Economias</span><strong id="monthSavings">R$ 0,00</strong></div>
+              <div><span>Saldo previsto</span><strong id="monthBalance">R$ 0,00</strong></div>
+            </div>
+            <div class="monthly-groups" id="monthlyGroups"></div>
+          </article>
+
+          <article class="panel closing-panel" id="closingReport">
+            <div class="panel-header monthly-header">
+              <div>
+                <p class="panel-kicker">FECHAMENTO</p>
+                <h2>Relatório mensal automático</h2>
+                <p class="panel-description" id="closingPeriodLabel">Resumo consolidado do mês.</p>
+              </div>
+              <button class="secondary-button" id="printReportButton" type="button">Gerar PDF</button>
+            </div>
+            <div class="closing-scorecards" id="closingScorecards"></div>
+            <div class="closing-insights" id="closingInsights"></div>
+          </article>
+        </section>
+      </section>
+
+      <section id="historico" class="page-section">
+        <section class="panel">
+          <div class="panel-header historical-header">
+            <div>
+              <p class="panel-kicker">BANCO DE DADOS</p>
+              <h2>Histórico completo</h2>
+            </div>
+            <label class="search-field">
+              <input type="search" id="historySearch" placeholder="Buscar descrição ou categoria" />
+            </label>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Responsável</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Descrição</th>
+                  <th>Forma</th>
+                  <th>Modelo</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state hidden" id="historyEmpty">
+            Nenhum lançamento encontrado.
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL FLUTUANTE -->
+  <div class="note-modal hidden" id="noteModal" aria-hidden="true">
+    <div class="note-modal-backdrop" data-close-note></div>
+    <section class="note-modal-card" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+      <div class="note-modal-header">
+        <div>
+          <p class="panel-kicker">LANÇAMENTO AUTOMÁTICO</p>
+          <h2 id="noteModalTitle">Incluir nota</h2>
+          <p>Envie uma foto da nota para preencher os dados da despesa.</p>
+        </div>
+        <button class="note-close" id="closeNoteButton" type="button" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="note-form-grid">
+        <label class="note-field">
+          <span>Responsável</span>
+          <select id="noteResponsavel">
+            <option value="">Selecione</option>
+            <option value="Victor">Victor</option>
+            <option value="Lara">Lara</option>
+          </select>
+        </label>
+        <label class="note-field">
+          <span>Categoria</span>
+          <select id="noteCategoria">
+            <option value="">Selecione</option>
+            <option>Salário</option><option>Moradia</option><option>Alimentação</option>
+            <option>Transporte</option><option>Saúde</option><option>Lazer</option>
+            <option>Água</option><option>Energia</option><option>Internet</option><option>Outros</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="note-upload" for="noteImageInput">
+        <input id="noteImageInput" type="file" accept="image/*" capture="environment" />
+        <strong>Selecionar ou fotografar nota</strong>
+        <span>Formatos de imagem aceitos pelo dispositivo</span>
+      </label>
+
+      <div class="note-preview-area hidden" id="notePreviewArea">
+        <img id="notePreview" alt="Pré-visualização da nota" />
+      </div>
+
+      <div class="note-progress hidden" id="noteProgress">
+        <div class="note-progress-bar" id="noteProgressBar"></div>
+      </div>
+
+      <button class="note-process-button" id="processNoteButton" type="button" disabled>
+        Ler nota
+      </button>
+
+      <div class="note-status hidden" id="noteStatus"></div>
+
+      <div class="note-extracted hidden" id="noteExtracted">
+        <div class="note-form-grid">
+          <label class="note-field note-field-full">
+            <span>Descrição / estabelecimento</span>
+            <input id="noteDescricao" type="text" placeholder="Nome do estabelecimento" />
+          </label>
+          <label class="note-field">
+            <span>Valor</span>
+            <input id="noteValor" type="text" inputmode="decimal" placeholder="R$ 0,00" />
+          </label>
+          <label class="note-field">
+            <span>Forma de pagamento</span>
+            <input id="noteFormaPagamento" type="text" placeholder="Pix, débito, crédito..." />
+          </label>
+        </div>
+        <div class="note-fixed-info">
+          <span><b>Tipo:</b> Despesa</span>
+          <span><b>Modelo:</b> À vista</span>
+          <span><b>Parcelamento:</b> Não</span>
+        </div>
+        <button class="note-submit-button" id="submitNoteButton" type="button">
+          Confirmar inclusão
+        </button>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- MODAL DE LANÇAMENTO MANUAL -->
+  <div class="note-modal hidden" id="manualModal" aria-hidden="true">
+    <div class="note-modal-backdrop" data-close-manual></div>
+    <section class="note-modal-card" role="dialog" aria-modal="true" aria-labelledby="manualModalTitle">
+      <div class="note-modal-header">
+        <div>
+          <p class="panel-kicker">LANÇAMENTO MANUAL</p>
+          <h2 id="manualModalTitle">Novo lançamento</h2>
+          <p>Preencha os dados para registrar diretamente no CasaDin.</p>
+        </div>
+        <button class="note-close" id="closeManualButton" type="button" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="note-form-grid">
+        <label class="note-field">
+          <span>Responsável</span>
+          <select id="manualResponsavel">
+            <option value="">Selecione</option>
+            <option value="Lara">Lara</option>
+            <option value="Victor">Victor</option>
+          </select>
+        </label>
+
+        <label class="note-field">
+          <span>Tipo</span>
+          <select id="manualTipo">
+            <option value="">Selecione</option>
+            <option value="Receita">Receita</option>
+            <option value="Despesa">Despesa</option>
+            <option value="Economia">Economia</option>
+          </select>
+        </label>
+
+        <label class="note-field">
+          <span>Categoria</span>
+          <select id="manualCategoria">
+            <option value="">Selecione</option>
+            <option value="Salário">Salário</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Água">Água</option>
+            <option value="Energia">Energia</option>
+            <option value="Internet">Internet</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </label>
+
+        <label class="note-field">
+          <span>Forma de pagamento</span>
+          <select id="manualFormaPagamento">
+            <option value="">Selecione</option>
+            <option value="PIX">PIX</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Boleto">Boleto</option>
+          </select>
+        </label>
+
+        <label class="note-field note-field-full">
+          <span>Descrição</span>
+          <input id="manualDescricao" type="text" maxlength="180" placeholder="Digite a descrição do lançamento" />
+        </label>
+
+        <label class="note-field">
+          <span>Valor total</span>
+          <input id="manualValor" type="text" inputmode="decimal" placeholder="Ex.: 100,00 ou 1250,56" />
+        </label>
+
+        <label class="note-field">
+          <span>Como será pago?</span>
+          <select id="manualModeloPagamento">
+            <option value="">Selecione</option>
+            <option value="À vista">À vista</option>
+            <option value="Parcelado">Parcelado</option>
+            <option value="Débito">Débito</option>
+            <option value="Recorrente">Recorrente</option>
+          </select>
+        </label>
+
+        <label class="note-field note-field-full hidden" id="manualParcelasField">
+          <span>Quantidade de parcelas?</span>
+          <input id="manualParcelas" type="number" inputmode="numeric" min="1" step="1" placeholder="Ex.: 12" />
+        </label>
+
+        <label class="note-field note-field-full hidden" id="manualFrequenciaField">
+          <span>Frequência</span>
+          <select id="manualFrequencia">
+            <option value="">Selecione</option>
+            <option value="Semanal">Semanal</option>
+            <option value="Quinzenal">Quinzenal</option>
+            <option value="Mensal">Mensal</option>
+            <option value="Anual">Anual</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="note-status hidden" id="manualStatus"></div>
+
+      <button class="note-submit-button" id="submitManualButton" type="button">
+        Confirmar lançamento
+      </button>
+    </section>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+    <strong>Carregando dados do CasaDin...</strong>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
