@@ -1711,8 +1711,18 @@ async function submitNoteToForms() {
     amount.toFixed(2).replace(".", ",")
   );
 
-  // Forma de pagamento: Pix, Crédito, Débito etc.
-  params.append("entry.1231333560", paymentMethod);
+  /// Forma de pagamento
+  let paymentToSend = paymentMethod.trim();
+
+  const paymentLower = paymentToSend.toLowerCase();
+
+  if (paymentLower.includes("cartão de débito")) {
+    paymentToSend = "Débito";
+  } else if (paymentLower.includes("cartão de crédito")) {
+    paymentToSend = "Crédito";
+  }
+
+  params.append("entry.1231333560", paymentToSend);
 
   // Como será pago?
   params.append("entry.312882359", "À vista");
