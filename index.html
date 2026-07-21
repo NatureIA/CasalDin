@@ -95,6 +95,10 @@
             </select>
           </label>
 
+          <button class="note-button" id="openNoteButton" type="button">
+            Incluir nota
+          </button>
+
           <button class="refresh-button" id="refreshButton" type="button">
             Atualizar
           </button>
@@ -418,6 +422,91 @@
         </section>
       </section>
     </main>
+  </div>
+
+  <!-- Modal de inclusão de nota -->
+  <div class="note-modal hidden" id="noteModal" aria-hidden="true">
+    <div class="note-modal-backdrop" data-close-note></div>
+    <section class="note-modal-card" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+      <div class="note-modal-header">
+        <div>
+          <p class="panel-kicker">LANÇAMENTO AUTOMÁTICO</p>
+          <h2 id="noteModalTitle">Incluir nota</h2>
+          <p>Envie uma foto da nota para preencher os dados da despesa.</p>
+        </div>
+        <button class="note-close" id="closeNoteButton" type="button" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="note-form-grid">
+        <label class="note-field">
+          <span>Responsável</span>
+          <select id="noteResponsavel">
+            <option value="">Selecione</option>
+            <option value="Victor">Victor</option>
+            <option value="Lara">Lara</option>
+          </select>
+        </label>
+
+        <label class="note-field">
+          <span>Categoria</span>
+          <select id="noteCategoria">
+            <option value="">Selecione</option>
+            <option>Salário</option><option>Moradia</option><option>Alimentação</option>
+            <option>Transporte</option><option>Saúde</option><option>Lazer</option>
+            <option>Água</option><option>Energia</option><option>Internet</option><option>Outros</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="note-upload" for="noteImageInput">
+        <input id="noteImageInput" type="file" accept="image/*" capture="environment" />
+        <strong>Selecionar ou fotografar nota</strong>
+        <span>Formatos de imagem aceitos pelo dispositivo</span>
+      </label>
+
+      <div class="note-preview-area hidden" id="notePreviewArea">
+        <img id="notePreview" alt="Pré-visualização da nota" />
+      </div>
+
+      <div class="note-progress hidden" id="noteProgress">
+        <div class="note-progress-bar" id="noteProgressBar"></div>
+      </div>
+
+      <button class="note-process-button" id="processNoteButton" type="button" disabled>
+        Ler nota
+      </button>
+
+      <div class="note-status hidden" id="noteStatus"></div>
+
+      <div class="note-extracted hidden" id="noteExtracted">
+        <div class="note-form-grid">
+          <label class="note-field note-field-full">
+            <span>Descrição / estabelecimento</span>
+            <input id="noteDescricao" type="text" placeholder="Nome do estabelecimento" />
+          </label>
+
+          <label class="note-field">
+            <span>Valor</span>
+            <input id="noteValor" type="text" inputmode="decimal" placeholder="R$ 0,00" />
+          </label>
+
+          <label class="note-field">
+            <span>Forma de pagamento</span>
+            <input id="noteFormaPagamento" type="text" placeholder="Pix, débito, crédito..." />
+          </label>
+        </div>
+
+        <div class="note-fixed-info">
+          <span><b>Tipo:</b> Despesa</span>
+          <span><b>Modelo:</b> À vista</span>
+          <span><b>Parcelamento:</b> Não</span>
+        </div>
+
+        <button class="note-submit-button" id="submitNoteButton" type="button">
+          Confirmar inclusão
+        </button>
+      </div>
+    </section>
   </div>
 
   <div class="loading-overlay" id="loadingOverlay">
