@@ -31,17 +31,14 @@
           <span>▦</span>
           Visão geral
         </button>
-
         <button class="nav-item" data-target="projecoes">
           <span>⌁</span>
           Projeções
         </button>
-
         <button class="nav-item" data-target="inteligencia">
           <span>◇</span>
           Inteligência
         </button>
-
         <button class="nav-item" data-target="historico">
           <span>☷</span>
           Histórico
@@ -95,13 +92,8 @@
             </select>
           </label>
 
-          <button class="note-button" id="openNoteButton" type="button">
-            Incluir nota
-          </button>
-
-          <button class="refresh-button" id="refreshButton" type="button">
-            Atualizar
-          </button>
+          <button class="note-button" id="openNoteButton" type="button">Incluir nota</button>
+          <button class="refresh-button" id="refreshButton" type="button">Atualizar</button>
         </div>
       </header>
 
@@ -117,7 +109,6 @@
             <strong id="saldoAtual">R$ 0,00</strong>
             <small id="saldoDescricao">Receitas menos despesas e economias</small>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-card-header">
               <span>Receitas</span>
@@ -126,7 +117,6 @@
             <strong id="totalReceitas">R$ 0,00</strong>
             <small id="receitasDescricao">0 lançamento(s)</small>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-card-header">
               <span>Despesas</span>
@@ -135,7 +125,6 @@
             <strong id="totalDespesas">R$ 0,00</strong>
             <small id="despesasDescricao">0 lançamento(s)</small>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-card-header">
               <span>Economias</span>
@@ -181,23 +170,19 @@
                 <h2>Resumo futuro</h2>
               </div>
             </div>
-
             <div class="commitment-list">
               <div class="commitment-item">
                 <span>Valor parcelado futuro</span>
                 <strong id="parceladoFuturo">R$ 0,00</strong>
               </div>
-
               <div class="commitment-item">
                 <span>Parcelas restantes</span>
                 <strong id="parcelasRestantes">0</strong>
               </div>
-
               <div class="commitment-item">
                 <span>Recorrências mensais</span>
                 <strong id="recorrenciasMensais">R$ 0,00</strong>
               </div>
-
               <div class="commitment-item">
                 <span>Próximo mês projetado</span>
                 <strong id="proximoMesProjetado">R$ 0,00</strong>
@@ -212,7 +197,6 @@
                 <h2>Victor x Lara</h2>
               </div>
             </div>
-
             <div class="person-comparison">
               <div class="person-row">
                 <div class="person-meta">
@@ -223,7 +207,6 @@
                   <div class="progress-bar" id="victorBar"></div>
                 </div>
               </div>
-
               <div class="person-row">
                 <div class="person-meta">
                   <strong>Lara</strong>
@@ -244,7 +227,6 @@
               <h2>Últimos lançamentos</h2>
             </div>
           </div>
-
           <div class="table-wrapper">
             <table>
               <thead>
@@ -261,7 +243,6 @@
               <tbody id="recentTableBody"></tbody>
             </table>
           </div>
-
           <div class="empty-state hidden" id="recentEmpty">
             Nenhum lançamento encontrado para os filtros selecionados.
           </div>
@@ -281,7 +262,6 @@
               <canvas id="projecaoChart"></canvas>
             </div>
           </article>
-
           <article class="panel">
             <div class="panel-header">
               <div>
@@ -289,7 +269,6 @@
                 <h2>Compromissos cadastrados</h2>
               </div>
             </div>
-
             <div class="table-wrapper">
               <table>
                 <thead>
@@ -304,14 +283,12 @@
                 <tbody id="commitmentsTableBody"></tbody>
               </table>
             </div>
-
             <div class="empty-state hidden" id="commitmentsEmpty">
               Nenhum parcelamento ou recorrência cadastrado.
             </div>
           </article>
         </section>
       </section>
-
 
       <section id="inteligencia" class="page-section">
         <section class="intelligence-grid">
@@ -381,6 +358,7 @@
           </article>
         </section>
       </section>
+
       <section id="historico" class="page-section">
         <section class="panel">
           <div class="panel-header historical-header">
@@ -388,16 +366,10 @@
               <p class="panel-kicker">BANCO DE DADOS</p>
               <h2>Histórico completo</h2>
             </div>
-
             <label class="search-field">
-              <input
-                type="search"
-                id="historySearch"
-                placeholder="Buscar descrição ou categoria"
-              />
+              <input type="search" id="historySearch" placeholder="Buscar descrição ou categoria" />
             </label>
           </div>
-
           <div class="table-wrapper">
             <table>
               <thead>
@@ -415,7 +387,6 @@
               <tbody id="historyTableBody"></tbody>
             </table>
           </div>
-
           <div class="empty-state hidden" id="historyEmpty">
             Nenhum lançamento encontrado.
           </div>
@@ -424,7 +395,7 @@
     </main>
   </div>
 
-  <!-- Modal de inclusão de nota -->
+  <!-- MODAL FLUTUANTE -->
   <div class="note-modal hidden" id="noteModal" aria-hidden="true">
     <div class="note-modal-backdrop" data-close-note></div>
     <section class="note-modal-card" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
@@ -446,7 +417,6 @@
             <option value="Lara">Lara</option>
           </select>
         </label>
-
         <label class="note-field">
           <span>Categoria</span>
           <select id="noteCategoria">
@@ -484,24 +454,20 @@
             <span>Descrição / estabelecimento</span>
             <input id="noteDescricao" type="text" placeholder="Nome do estabelecimento" />
           </label>
-
           <label class="note-field">
             <span>Valor</span>
             <input id="noteValor" type="text" inputmode="decimal" placeholder="R$ 0,00" />
           </label>
-
           <label class="note-field">
             <span>Forma de pagamento</span>
             <input id="noteFormaPagamento" type="text" placeholder="Pix, débito, crédito..." />
           </label>
         </div>
-
         <div class="note-fixed-info">
           <span><b>Tipo:</b> Despesa</span>
           <span><b>Modelo:</b> À vista</span>
           <span><b>Parcelamento:</b> Não</span>
         </div>
-
         <button class="note-submit-button" id="submitNoteButton" type="button">
           Confirmar inclusão
         </button>
