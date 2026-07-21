@@ -1712,17 +1712,10 @@ async function submitNoteToForms() {
   );
 
   /// Forma de pagamento
-  let paymentToSend = paymentMethod.trim();
-
-  const paymentLower = paymentToSend.toLowerCase();
-
-  if (paymentLower.includes("cartão de débito")) {
-    paymentToSend = "Débito";
-  } else if (paymentLower.includes("cartão de crédito")) {
-    paymentToSend = "Crédito";
-  }
-
-  params.append("entry.1231333560", paymentToSend);
+  params.append(
+    "entry.1231333560",
+    paymentMethod.replace(/cartão de /i, "")
+  );
 
   // Como será pago?
   params.append("entry.312882359", "À vista");
