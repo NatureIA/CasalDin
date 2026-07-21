@@ -6,7 +6,7 @@ const OCR_URL = "https://api.ocr.space/parse/image";
 
 // Endpoint do Google Forms
 const FORMS_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/formResponse";
+  "https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/viewform?usp=sharing&ouid=117343320569638828679";
 
 const state = {
   records: [],
