@@ -1,12 +1,12 @@
 const CSV_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/formResponse";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQc3dcLg-Fi78H6M00At-eTfmeeQMghVK-Oy3w5XSX7QBXPNTLNZiGmlzt2Va5SqRgYhR5GqBo13fGE/pub?gid=2088244644&single=true&output=csv";
 
 const OCR_API_KEY = "helloworld";
 const OCR_URL = "https://api.ocr.space/parse/image";
 
 // Endpoint do Google Forms
 const FORMS_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/viewform?usp=sharing&ouid=117343320569638828679";
+"https://docs.google.com/forms/d/e/1FAIpQLSfHREBYA5cyZFouXhRYi94WjKx2pQXK213uOg6Vo-lNj0sfSg/formResponse";
 
 const state = {
   records: [],
