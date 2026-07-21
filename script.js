@@ -1665,9 +1665,10 @@ async function submitNoteToForms() {
   const category = document.getElementById("noteCategoria").value;
   const description = document.getElementById("noteDescricao").value.trim();
   const amountRaw = document.getElementById("noteValor").value;
-  const paymentMethod = document
+  let paymentMethod = document
     .getElementById("noteFormaPagamento")
-    .value.trim();
+    .value.trim()
+    .replace(/^cartão de\s+/i, "");
 
   if (
     !responsible ||
