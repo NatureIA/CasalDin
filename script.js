@@ -1682,14 +1682,15 @@ async function submitNoteToForms() {
     );
   }
 
-  const formData = new FormData();
-  formData.append("entry.680682825", description);
-  formData.append("entry.83532577", "Despesa");
-  formData.append("entry.228518281", category);
-  formData.append("entry.1422234492", paymentMethod || "Não informado");
-  formData.append("entry.844975634", "Pago");
-  formData.append("entry.853825704", description);
-  formData.append("entry.2025566254", amount.toFixed(2).replace(".", ","));
+  // 👇 CORREÇÃO: usar URLSearchParams (x-www-form-urlencoded)
+  const params = new URLSearchParams();
+  params.append("entry.680682825", description);
+  params.append("entry.83532577", "Despesa");
+  params.append("entry.228518281", category);
+  params.append("entry.1422234492", paymentMethod || "Não informado");
+  params.append("entry.844975634", "Pago");
+  params.append("entry.853825704", description);
+  params.append("entry.2025566254", amount.toFixed(2).replace(".", ","));
 
   const submitBtn = document.getElementById("submitNoteButton");
   submitBtn.disabled = true;
@@ -1700,13 +1701,16 @@ async function submitNoteToForms() {
     await fetch(FORMS_URL, {
       method: "POST",
       mode: "no-cors",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
     });
     showNoteStatus("Dados enviados com sucesso! Atualizando o painel...", "success");
     setTimeout(() => {
       closeNoteModal();
       loadData();
-    }, 1500);
+    }, 2000);
   } catch (error) {
     console.error("Erro ao enviar para o Forms:", error);
     showNoteStatus("Erro ao enviar. Verifique sua conexão e tente novamente.", "error");
