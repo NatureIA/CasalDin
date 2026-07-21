@@ -1715,7 +1715,11 @@ async function submitNoteToForms() {
   /// Forma de pagamento
   params.append(
     "entry.1231333560",
-    paymentMethod.replace(/cartão de /i, "")
+    paymentMethod.toLowerCase().includes("débito")
+      ? "Débito"
+      : paymentMethod.toLowerCase().includes("crédito")
+      ? "Crédito"
+      : paymentMethod
   );
 
   // Como será pago?
