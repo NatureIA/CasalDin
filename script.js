@@ -624,7 +624,63 @@ function renderFlowChart(records) {
           },
         ],
       },
-      options: chartOptions(),
+      options: {
+  responsive: true,
+  maintainAspectRatio: false,
+
+  plugins: {
+    legend: {
+      display: true,
+      position: "top",
+      labels: {
+        color: "#cbd5e1",
+        usePointStyle: true,
+        pointStyle: "circle",
+        boxWidth: 8,
+        boxHeight: 8,
+      },
+    },
+
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+        },
+      },
+    },
+  },
+
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+
+      ticks: {
+        color: "#94a3b8",
+        autoSkip: false,
+        maxRotation: 0,
+        minRotation: 0,
+      },
+    },
+
+    y: {
+      beginAtZero: true,
+
+      grid: {
+        color: "rgba(148, 163, 184, 0.12)",
+      },
+
+      ticks: {
+        color: "#94a3b8",
+
+        callback: function (value) {
+          return formatCurrency(value);
+        },
+      },
+    },
+  },
+},
     }
   );
 }
