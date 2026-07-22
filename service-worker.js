@@ -1,4 +1,4 @@
-const CACHE_NAME = "casadin-cache-v3";
+const CACHE_NAME = "casadin-cache-v5";
 
 const ARQUIVOS_PARA_CACHE = [
   "./",
