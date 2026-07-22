@@ -110,11 +110,10 @@ async function loadData() {
     setSyncState("online");
     hideError();
   } catch (error) {
-    console.error("Erro real no carregamento do portal:", error);
+    console.error(error);
     setSyncState("error");
-
     showError(
-      `Erro real: ${error?.message || "Falha desconhecida durante o carregamento."}`
+      "Não foi possível ler os dados publicados. Confirme se a aba Lançamentos continua publicada como CSV."
     );
   } finally {
     setLoading(false);
@@ -427,9 +426,7 @@ function countByType(records, type) {
 }
 
 function renderFlowChart(records) {
-  const currentMonthQuantity = new Date().getMonth() + 1;
-  const months = getRecentMonths(currentMonthQuantity);
-
+  const months = getRecentMonths(6);
   const labels = months.map((month) => monthFormatter.format(month));
   const receitas = [];
   const despesas = [];
@@ -888,36 +885,21 @@ function differenceInMonths(start, end) {
   );
 }
 
-function getCurrentYearMonths() {
-  const now = new Date();
-  const months = [];
-
-  for (let monthIndex = 0; monthIndex <= now.getMonth(); monthIndex += 1) {
-    months.push(new Date(now.getFullYear(), monthIndex, 1));
-  }
-
-  return months;
-}
-
 function getRecentMonths(quantity) {
   const now = new Date();
   const months = [];
-
   for (let index = quantity - 1; index >= 0; index -= 1) {
     months.push(new Date(now.getFullYear(), now.getMonth() - index, 1));
   }
-
   return months;
 }
 
 function getFutureMonths(quantity) {
   const now = new Date();
   const months = [];
-
   for (let index = 1; index <= quantity; index += 1) {
     months.push(new Date(now.getFullYear(), now.getMonth() + index, 1));
   }
-
   return months;
 }
 
