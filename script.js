@@ -426,7 +426,9 @@ function countByType(records, type) {
 }
 
 function renderFlowChart(records) {
-  const months = getCurrentYearMonths();
+  const currentMonthQuantity = new Date().getMonth() + 1;
+  const months = getRecentMonths(currentMonthQuantity);
+
   const labels = months.map((month) => monthFormatter.format(month));
   const receitas = [];
   const despesas = [];
