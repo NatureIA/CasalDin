@@ -110,10 +110,11 @@ async function loadData() {
     setSyncState("online");
     hideError();
   } catch (error) {
-    console.error(error);
+    console.error("Erro real no carregamento do portal:", error);
     setSyncState("error");
+
     showError(
-      "Não foi possível ler os dados publicados. Confirme se a aba Lançamentos continua publicada como CSV."
+      `Erro real: ${error?.message || "Falha desconhecida durante o carregamento."}`
     );
   } finally {
     setLoading(false);
