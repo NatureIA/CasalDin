@@ -62,6 +62,7 @@ function bindNavigation() {
 function bindFilters() {
   document.getElementById("responsavelFilter").addEventListener("change", renderDashboard);
   document.getElementById("anoFilter").addEventListener("change", renderDashboard);
+  document.getElementById("mesFilter").addEventListener("change", renderDashboard);
   document.getElementById("periodoFilter").addEventListener("change", renderDashboard);
   document.getElementById("refreshButton").addEventListener("click", loadData);
   document.getElementById("historySearch").addEventListener("input", renderHistory);
@@ -365,17 +366,85 @@ function populateYearFilter() {
 }
 
 function getFilteredRecords() {
-  const responsible = document.getElementById("responsavelFilter").value;
-  const selectedYear = document.getElementById("anoFilter").value;
-  const period = document.getElementById("periodoFilter").value;
+  const responsible =
+    document.getElementById("responsavelFilter").value;
 
-  return state.records.filter((record) => {
-    const responsibleMatch =
-      responsible === "Todos" || record.responsavel === responsible;
+  const selectedYear =
+    document.getElementById("anoFilter").value;
+
+  const selectedMonth =
+    document.getElementById("mesFilter").value;
+
+  const period =
+    document.getElementById("periodoFilter").value;
+
+  const responsibleRecords = state.records.filter(
+    (record) =>
+      responsible === "Todos" ||
+      record.responsavel === responsible
+  );
+
+  /*
+   * Quando um mês específico for escolhido,
+   * o filtro Período será ignorado.
+   */
+  if (selectedMonth !== "Todos") {
+    const year =
+      selectedYear === "Todos"
+        ? new Date().getFullYear()
+        : Number(selectedYear);
+
+    const month = Number(selectedMonth);
+
+    const targetMonth = new Date(year, month, 1);
+
+    return responsibleRecords
+      .map((record) => {
+        let projectedValue = 0;
+
+        if (record.modeloPagamento === "Recorrente") {
+          projectedValue = projectedRecurringAmount(
+            record,
+            targetMonth
+          );
+        } else if (
+          record.modeloPagamento === "Parcelado"
+        ) {
+          projectedValue = projectedInstallmentAmount(
+            record,
+            targetMonth
+          );
+        } else if (
+          record.data &&
+          sameMonth(record.data, targetMonth)
+        ) {
+          projectedValue = record.valor;
+        }
+
+        if (projectedValue <= 0) {
+          return null;
+        }
+
+        return {
+          ...record,
+          valor: projectedValue,
+          data: targetMonth,
+        };
+      })
+      .filter(Boolean);
+  }
+
+  return responsibleRecords.filter((record) => {
     const yearMatch =
       selectedYear === "Todos" ||
-      (record.data && record.data.getFullYear() === Number(selectedYear));
-    return responsibleMatch && yearMatch && dateMatchesPeriod(record.data, period);
+      (record.data &&
+        record.data.getFullYear() ===
+          Number(selectedYear));
+
+    return (
+      yearMatch &&
+      dateMatchesPeriod(record.data, period)
+    );
   });
 }
 
@@ -439,8 +508,14 @@ function countByType(records, type) {
 }
 
 function renderFlowChart(records) {
-  const selectedYear = document.getElementById("anoFilter").value;
-  const period = document.getElementById("periodoFilter").value;
+  const selectedYear =
+    document.getElementById("anoFilter").value;
+
+  const selectedMonth =
+    document.getElementById("mesFilter").value;
+
+  const period =
+    document.getElementById("periodoFilter").value;
 
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -480,7 +555,14 @@ function renderFlowChart(records) {
     }
   }
 
-  if (selectedYear !== "Todos") {
+  if (selectedMonth !== "Todos") {
+    const year =
+      selectedYear === "Todos"
+        ? currentYear
+        : Number(selectedYear);
+
+    addMonth(year, Number(selectedMonth));
+  } else if (selectedYear !== "Todos") {
     const year = Number(selectedYear);
 
     if (period === "mesAtual") {
@@ -507,7 +589,10 @@ function renderFlowChart(records) {
 
       while (cursor <= limit) {
         if (cursor.getFullYear() === year) {
-          addMonth(cursor.getFullYear(), cursor.getMonth());
+          addMonth(
+            cursor.getFullYear(),
+            cursor.getMonth()
+          );
         }
 
         cursor.setMonth(cursor.getMonth() + 1);
@@ -555,14 +640,19 @@ function renderFlowChart(records) {
         );
 
         const oldestDate = new Date(
-          Math.min(...dates.map((date) => date.getTime()))
+          Math.min(
+            ...dates.map((date) => date.getTime())
+          )
         );
 
         const newestDate = new Date(
-          Math.max(...dates.map((date) => date.getTime()))
+          Math.max(
+            ...dates.map((date) => date.getTime())
+          )
         );
 
-        const currentYearEnd = new Date(currentYear, 11, 1);
+        const currentYearEnd =
+          new Date(currentYear, 11, 1);
 
         const finalDate =
           newestDate > currentYearEnd
@@ -603,8 +693,10 @@ function renderFlowChart(records) {
     document.getElementById("fluxoChart"),
     {
       type: "bar",
+
       data: {
         labels,
+
         datasets: [
           {
             label: "Receitas",
@@ -624,67 +716,69 @@ function renderFlowChart(records) {
           },
         ],
       },
+
       options: {
-  responsive: true,
-  maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: false,
 
-  plugins: {
-    legend: {
-      display: true,
-      position: "top",
-      labels: {
-        color: "#cbd5e1",
-        usePointStyle: true,
-        pointStyle: "circle",
-        boxWidth: 8,
-        boxHeight: 8,
-      },
-    },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
 
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+            labels: {
+              color: "#cbd5e1",
+              usePointStyle: true,
+              pointStyle: "circle",
+              boxWidth: 8,
+              boxHeight: 8,
+            },
+          },
+
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+              },
+            },
+          },
+        },
+
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+
+            ticks: {
+              color: "#94a3b8",
+              autoSkip: false,
+              maxRotation: 0,
+              minRotation: 0,
+            },
+          },
+
+          y: {
+            beginAtZero: true,
+
+            grid: {
+              color:
+                "rgba(148, 163, 184, 0.12)",
+            },
+
+            ticks: {
+              color: "#94a3b8",
+
+              callback: function (value) {
+                return formatCurrency(value);
+              },
+            },
+          },
         },
       },
-    },
-  },
-
-  scales: {
-    x: {
-      grid: {
-        display: false,
-      },
-
-      ticks: {
-        color: "#94a3b8",
-        autoSkip: false,
-        maxRotation: 0,
-        minRotation: 0,
-      },
-    },
-
-    y: {
-      beginAtZero: true,
-
-      grid: {
-        color: "rgba(148, 163, 184, 0.12)",
-      },
-
-      ticks: {
-        color: "#94a3b8",
-
-        callback: function (value) {
-          return formatCurrency(value);
-        },
-      },
-    },
-  },
-},
     }
   );
 }
-
 function renderCategoryChart(records) {
   const categoryMap = {};
 
