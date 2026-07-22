@@ -676,6 +676,12 @@ function renderFlowChart(records) {
   const despesas = [];
 
   months.forEach((month) => {
+    if (selectedMonth !== "Todos") {
+      receitas.push(sumByType(records, "Receita"));
+      despesas.push(sumByType(records, "Despesa"));
+      return;
+    }
+
     const projection = calculateMonthProjection(
       records,
       month
