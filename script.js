@@ -915,15 +915,11 @@ function getFutureMonths(quantity) {
   const months = [];
 
   for (let index = 1; index <= quantity; index += 1) {
-    months.push(
-      new Date(now.getFullYear(), now.getMonth() + index, 1)
-    );
+    months.push(new Date(now.getFullYear(), now.getMonth() + index, 1));
   }
 
   return months;
 }
-
-function chartOptions() {
 
 function chartOptions() {
   return {
