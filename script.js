@@ -328,23 +328,36 @@ function populateYearFilter() {
   const select = document.getElementById("anoFilter");
   const currentValue = select.value;
 
-  const years = [...new Set(
-    state.records
-      .filter((record) => record.data)
-      .map((record) => record.data.getFullYear())
-  )].sort((a, b) => b - a);
+  const years = [
+    ...new Set(
+      state.records
+        .filter(
+          (record) =>
+            record.data &&
+            ["Receita", "Despesa"].includes(record.tipo)
+        )
+        .map((record) => record.data.getFullYear())
+    ),
+  ].sort((a, b) => b - a);
 
   const currentYear = new Date().getFullYear();
+
   if (!years.includes(currentYear)) {
     years.unshift(currentYear);
   }
 
   select.innerHTML = `
     <option value="Todos">Todos</option>
-    ${years.map((year) => `<option value="${year}">${year}</option>`).join("")}
+    ${years
+      .map((year) => `<option value="${year}">${year}</option>`)
+      .join("")}
   `;
 
-  if ([...select.options].some((option) => option.value === currentValue)) {
+  if (
+    [...select.options].some(
+      (option) => option.value === currentValue
+    )
+  ) {
     select.value = currentValue;
   } else {
     select.value = String(currentYear);
@@ -426,43 +439,194 @@ function countByType(records, type) {
 }
 
 function renderFlowChart(records) {
-  const months = getRecentMonths(6);
-  const labels = months.map((month) => monthFormatter.format(month));
+  const selectedYear = document.getElementById("anoFilter").value;
+  const period = document.getElementById("periodoFilter").value;
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const months = [];
+
+  function addMonth(year, month) {
+    const date = new Date(year, month, 1);
+
+    const exists = months.some(
+      (item) =>
+        item.getFullYear() === date.getFullYear() &&
+        item.getMonth() === date.getMonth()
+    );
+
+    if (!exists) {
+      months.push(date);
+    }
+  }
+
+  function addMonthsBetween(startDate, endDate) {
+    const cursor = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      1
+    );
+
+    const limit = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      1
+    );
+
+    while (cursor <= limit) {
+      addMonth(cursor.getFullYear(), cursor.getMonth());
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  }
+
+  if (selectedYear !== "Todos") {
+    const year = Number(selectedYear);
+
+    if (period === "mesAtual") {
+      if (year === currentYear) {
+        addMonth(year, currentMonth);
+      }
+    } else if (period === "30dias" || period === "90dias") {
+      const quantity = period === "30dias" ? 30 : 90;
+
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - quantity);
+
+      const cursor = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        1
+      );
+
+      const limit = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+      );
+
+      while (cursor <= limit) {
+        if (cursor.getFullYear() === year) {
+          addMonth(cursor.getFullYear(), cursor.getMonth());
+        }
+
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+    } else if (period === "anoAtual") {
+      if (year === currentYear) {
+        for (let month = 0; month < 12; month += 1) {
+          addMonth(year, month);
+        }
+      }
+    } else {
+      for (let month = 0; month < 12; month += 1) {
+        addMonth(year, month);
+      }
+    }
+  } else {
+    if (period === "mesAtual") {
+      addMonth(currentYear, currentMonth);
+    } else if (period === "30dias" || period === "90dias") {
+      const quantity = period === "30dias" ? 30 : 90;
+
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - quantity);
+
+      addMonthsBetween(startDate, now);
+    } else if (period === "anoAtual") {
+      for (let month = 0; month < 12; month += 1) {
+        addMonth(currentYear, month);
+      }
+    } else {
+      const validRecords = records.filter(
+        (record) =>
+          record.data &&
+          ["Receita", "Despesa"].includes(record.tipo)
+      );
+
+      if (validRecords.length > 0) {
+        const dates = validRecords.map(
+          (record) =>
+            new Date(
+              record.data.getFullYear(),
+              record.data.getMonth(),
+              1
+            )
+        );
+
+        const oldestDate = new Date(
+          Math.min(...dates.map((date) => date.getTime()))
+        );
+
+        const newestDate = new Date(
+          Math.max(...dates.map((date) => date.getTime()))
+        );
+
+        const currentYearEnd = new Date(currentYear, 11, 1);
+
+        const finalDate =
+          newestDate > currentYearEnd
+            ? newestDate
+            : currentYearEnd;
+
+        addMonthsBetween(oldestDate, finalDate);
+      } else {
+        for (let month = 0; month < 12; month += 1) {
+          addMonth(currentYear, month);
+        }
+      }
+    }
+  }
+
+  const labels = months.map((month) =>
+    monthFormatter.format(month)
+  );
+
   const receitas = [];
   const despesas = [];
 
   months.forEach((month) => {
-    receitas.push(sumMonthType(records, month, "Receita"));
-    despesas.push(sumMonthType(records, month, "Despesa"));
+    const projection = calculateMonthProjection(
+      records,
+      month
+    );
+
+    receitas.push(projection.receipts);
+    despesas.push(projection.expenses);
   });
 
   if (state.charts.fluxo) {
     state.charts.fluxo.destroy();
   }
 
-  state.charts.fluxo = new Chart(document.getElementById("fluxoChart"), {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Receitas",
-          data: receitas,
-          backgroundColor: "rgba(52, 211, 153, 0.72)",
-          borderRadius: 9,
-          maxBarThickness: 34,
-        },
-        {
-          label: "Despesas",
-          data: despesas,
-          backgroundColor: "rgba(251, 113, 133, 0.72)",
-          borderRadius: 9,
-          maxBarThickness: 34,
-        },
-      ],
-    },
-    options: chartOptions(),
-  });
+  state.charts.fluxo = new Chart(
+    document.getElementById("fluxoChart"),
+    {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Receitas",
+            data: receitas,
+            backgroundColor:
+              "rgba(52, 211, 153, 0.72)",
+            borderRadius: 9,
+            maxBarThickness: 34,
+          },
+          {
+            label: "Despesas",
+            data: despesas,
+            backgroundColor:
+              "rgba(251, 113, 133, 0.72)",
+            borderRadius: 9,
+            maxBarThickness: 34,
+          },
+        ],
+      },
+      options: chartOptions(),
+    }
+  );
 }
 
 function renderCategoryChart(records) {
