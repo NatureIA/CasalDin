@@ -781,3 +781,21 @@ body.note-modal-open { overflow: hidden; }
 @media (max-width: 720px) {
   .manual-button, .note-button, .refresh-button { width: 100%; }
 }
+
+.flow-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+}
+
+.flow-chart-inner {
+  position: relative;
+  min-width: 950px;
+  height: 360px;
+}
+
+.flow-chart-inner canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
