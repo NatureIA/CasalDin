@@ -426,7 +426,7 @@ function countByType(records, type) {
 }
 
 function renderFlowChart(records) {
-  const months = getRecentMonths(6);
+  const months = getCurrentYearMonths();
   const labels = months.map((month) => monthFormatter.format(month));
   const receitas = [];
   const despesas = [];
@@ -885,21 +885,25 @@ function differenceInMonths(start, end) {
   );
 }
 
-function getRecentMonths(quantity) {
+function getCurrentYearMonths() {
   const now = new Date();
   const months = [];
-  for (let index = quantity - 1; index >= 0; index -= 1) {
-    months.push(new Date(now.getFullYear(), now.getMonth() - index, 1));
+
+  for (let monthIndex = 0; monthIndex <= now.getMonth(); monthIndex += 1) {
+    months.push(new Date(now.getFullYear(), monthIndex, 1));
   }
+
   return months;
 }
 
-function getFutureMonths(quantity) {
+function getRecentMonths(quantity) {
   const now = new Date();
   const months = [];
-  for (let index = 1; index <= quantity; index += 1) {
-    months.push(new Date(now.getFullYear(), now.getMonth() + index, 1));
+
+  for (let index = quantity - 1; index >= 0; index -= 1) {
+    months.push(new Date(now.getFullYear(), now.getMonth() - index, 1));
   }
+
   return months;
 }
 
