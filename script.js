@@ -2046,6 +2046,12 @@ async function submitNoteToForms() {
   // Como será pago?
   params.append("entry.312882359", "À vista");
 
+  // Vigência da nota: data atual
+  params.append(
+    "entry.1325282209",
+    new Date().toISOString().split("T")[0]
+  );
+
   const submitBtn = document.getElementById("submitNoteButton");
 
   submitBtn.disabled = true;
@@ -2185,6 +2191,11 @@ function resetManualForm() {
   document.getElementById("manualValor").value = "";
   document.getElementById("manualFormaPagamento").value = "";
   document.getElementById("manualModeloPagamento").value = "";
+
+  document.getElementById("manualVigencia").value =
+    new Date().toISOString().split("T")[0];
+
+  
   document.getElementById("manualParcelas").value = "";
   document.getElementById("manualFrequencia").value = "";
   updateManualConditionalFields();
@@ -2211,10 +2222,11 @@ async function submitManualToForms() {
   const amountRaw = document.getElementById("manualValor").value;
   const paymentMethod = document.getElementById("manualFormaPagamento").value;
   const paymentModel = document.getElementById("manualModeloPagamento").value;
+  const validity = document.getElementById("manualVigencia").value;
   const installmentsRaw = document.getElementById("manualParcelas").value;
   const frequency = document.getElementById("manualFrequencia").value;
 
-  if (!responsible || !type || !category || !description || !amountRaw || !paymentMethod || !paymentModel) {
+  if (!responsible || !type || !category || !description || !amountRaw || !paymentMethod || !paymentModel || !validity) {
     return showManualStatus("Preencha todos os campos obrigatórios antes de enviar.", "error");
   }
 
@@ -2243,6 +2255,7 @@ async function submitManualToForms() {
   params.append("entry.1390409746", amount.toFixed(2).replace(".", ","));
   params.append("entry.1231333560", paymentMethod);
   params.append("entry.312882359", paymentModel);
+  params.append("entry.1325282209", validity);
 
   if (paymentModel === "Parcelado") {
     params.append("entry.412393477", String(installments));
