@@ -2053,11 +2053,7 @@ async function submitNoteToForms() {
   params.append("entry.312882359", "À vista");
 
   // Vigência
-  const [validityYear, validityMonth, validityDay] = validity.split("-");
-
-  params.append("entry.1325282209_year", validityYear);
-  params.append("entry.1325282209_month", validityMonth);
-  params.append("entry.1325282209_day", validityDay);
+  params.append("entry.1325282209", validity);
 
   const submitBtn = document.getElementById("submitNoteButton");
 
@@ -2263,11 +2259,7 @@ async function submitManualToForms() {
   params.append("entry.1231333560", paymentMethod);
   params.append("entry.312882359", paymentModel);
 
-  const [validityYear, validityMonth, validityDay] = validity.split("-");
-
-  params.append("entry.1325282209_year", validityYear);
-  params.append("entry.1325282209_month", validityMonth);
-  params.append("entry.1325282209_day", validityDay);
+  params.append("entry.1325282209", validity);
 
   if (paymentModel === "Parcelado") {
     params.append("entry.412393477", String(installments));
