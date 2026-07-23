@@ -1825,6 +1825,10 @@ function closeNoteModal() {
 function resetNoteForm() {
   document.getElementById("noteResponsavel").value = "";
   document.getElementById("noteCategoria").value = "";
+  
+  document.getElementById("noteVigencia").value =
+    new Date().toISOString().split("T")[0];
+  
   document.getElementById("noteImageInput").value = "";
   document.getElementById("noteDescricao").value = "";
   document.getElementById("noteValor").value = "";
@@ -1984,6 +1988,7 @@ function findNoteCurrencyValues(source) {
 async function submitNoteToForms() {
   const responsible = document.getElementById("noteResponsavel").value;
   const category = document.getElementById("noteCategoria").value;
+  const validity = document.getElementById("noteVigencia").value;
   const description = document.getElementById("noteDescricao").value.trim();
   const amountRaw = document.getElementById("noteValor").value;
   let paymentMethod = document
@@ -1994,6 +1999,7 @@ async function submitNoteToForms() {
   if (
     !responsible ||
     !category ||
+    !validity ||
     !description ||
     !amountRaw ||
     !paymentMethod
@@ -2046,11 +2052,12 @@ async function submitNoteToForms() {
   // Como será pago?
   params.append("entry.312882359", "À vista");
 
-  // Vigência da nota: data atual
-  params.append(
-    "entry.1325282209",
-    new Date().toISOString().split("T")[0]
-  );
+  // Vigência
+  const [validityYear, validityMonth, validityDay] = validity.split("-");
+
+  params.append("entry.1325282209_year", validityYear);
+  params.append("entry.1325282209_month", validityMonth);
+  params.append("entry.1325282209_day", validityDay);
 
   const submitBtn = document.getElementById("submitNoteButton");
 
